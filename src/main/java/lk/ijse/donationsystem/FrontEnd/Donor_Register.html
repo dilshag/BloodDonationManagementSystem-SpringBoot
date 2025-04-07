@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .register-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+            width: 280px;
+            text-align: left;
+        }
+
+        h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-control {
+            height: 30px;
+            font-size: 14px;
+            border-radius: 6px;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+        }
+
+        .btn-primary {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #1e40af;
+            transform: scale(1.05);
+        }
+
+        .btn-link {
+            color: #1e3a8a;
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 13px;
+            display: block;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .btn-link:hover {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <h3>Donor Registration</h3>
+    <form id="registerForm">
+        <div class="mb-2">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" required>
+        </div>
+        <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" required>
+        </div>
+        <div class="mb-2">
+            <label for="bloodType" class="form-label">Blood Type</label>
+            <select class="form-control" id="bloodType" required>
+                <option value="">Select Blood Type</option>
+                <option value="A+">A_POSITIVE</option>
+                <option value="A-">A_NEGATIVE</option>
+                <option value="B+">B_POSITIVE</option>
+                <option value="B-">B_NEGATIVE</option>
+                <option value="O+">O_POSITIVE</option>
+                <option value="O-">O_NEGATIVE</option>
+                <option value="AB+">AB_POSITIVE</option>
+                <option value="AB-">AB_NEGATIVE</option>
+            </select>
+        </div>
+        <div class="mb-2">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" required>
+        </div>
+        <div class="mb-2">
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phoneNumber" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#registerForm").submit(function (event) {
+            event.preventDefault();
+
+            let name = $("#name").val().trim();
+            let email = $("#email").val().trim();
+            let bloodType = $("#bloodType").val();
+            let address = $("#address").val().trim();
+            let phoneNumber = $("#phoneNumber").val().trim();
+
+            if (!name || !email || !bloodType || !address || !phoneNumber) {
+                Swal.fire("Error!", "All fields are required!", "error");
+                return;
+            }
+
+            let donorData = {
+                name: name,
+                email: email,
+                bloodType: bloodType,
+                address: address,
+                phoneNumber: phoneNumber
+            };
+
+            $.ajax({
+                url: "http://localhost:8080/api/v1/donor/register/profile",
+                type: "POST",
+                contentType: "application/json",
+               /* headers: { "Authorization": `Bearer ${authToken}` },*/
+                data: JSON.stringify(donorData),
+                success: function (response) {
+                    if (response.code === 201) {
+                        Swal.fire("Success!", "Registration successful!", "success")
+                            .then(() => window.location.href = "Donor_Profile.html");
+                    } else {
+                        Swal.fire("Error!", response.message, "error");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", error);
+                    Swal.fire("Error!", "Registration failed. Please try again.", "error");
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

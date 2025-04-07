@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Body and General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fb;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: #1E2A47;
+            height: 100vh;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 12px 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+        }
+
+        .sidebar ul li:hover {
+            background-color: #3C4977;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: #F4F7FB;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #FFFFFF;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .user-info a {
+            color: #1E2A47;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .user-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard Cards */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            color: #1E2A47;
+        }
+
+        .highlight {
+            color: #FF6347;
+            font-weight: bold;
+        }
+
+        .card p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .card strong {
+            color: #1E2A47;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <h2>Admin Dashboard</h2>
+    <ul>
+        <li>➕ Add Donors</li>
+        <li onclick="navigateToDonorList()">❤️ Donors</li>
+        <li onclick="navigateToUserList()">👤 Users</li> <!-- Add a click event to navigate -->
+        <li>📄 Blood Requests</li>
+        <li>🩸 Blood Bank</li>
+        <li>🩸 Blood Stock</li>
+        <li onclick="navigateToDashboard()">🩸 Dashboard </li>
+
+    </ul>
+</div>
+
+<div class="main-content">
+    <header>
+        <span>Welcome to Admin Dashboard</span>
+        <div class="user-info">👤 Welcome admin@gmail.com | <a href="#">Logout</a></div>
+    </header>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>Blood Group: <span class="highlight">O+VE</span></h3>
+            <p>Number of Donors: <strong>2</strong></p>
+            <p>Available Units: <strong>3</strong></p>
+        </div>
+        <div class="card">
+            <h3>Blood Group: <span class="highlight">O-VE</span></h3>
+            <p>Number of Donors: <strong>1</strong></p>
+            <p>Available Units: <strong>2</strong></p>
+        </div>
+        <div class="card">
+            <h3>Blood Group: <span class="highlight">B+VE</span></h3>
+            <p>Number of Donors: <strong>4</strong></p>
+            <p>Available Units: <strong>5</strong></p>
+        </div>
+        <div class="card">
+            <h3>Blood Group: <span class="highlight">A+VE</span></h3>
+            <p>Number of Donors: <strong>1</strong></p>
+            <p>Available Units: <strong>2</strong></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Navigation function for sidebar links
+    function navigateToUserList() {
+        window.location.href = "user_list.html"; // Change this to the actual path
+    }
+    function navigateToDonorList() {
+        window.location.href = "donor.html"; // Change this to the actual path
+    }
+    function navigateToDashboard() {
+        window.location.href = "dashboard.html"; // Change this to the actual path
+    }
+
+    // Sidebar Toggle
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarLinks = document.querySelectorAll('.sidebar ul li');
+    let isSidebarVisible = true;
+
+    // Toggle sidebar visibility when a link is clicked
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+        });
+    });
+
+    // Dashboard Card Interaction (e.g., clicking a card could show more details or navigate)
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Example of dynamic interaction:
+            // You could display more details, show a modal, etc.
+            alert('Card clicked!');
+        });
+    });
+
+    // Show or hide the sidebar on smaller screens (Responsive Toggle)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.style.transform = 'translateX(-100%)'; // Hide Sidebar for Mobile view
+        } else {
+            sidebar.style.transform = 'translateX(0)'; // Show Sidebar on larger screens
+        }
+    });
+
+    // Example: dynamic data for the dashboard cards (you could fetch real data here)
+    const dashboardData = [
+        {
+            group: 'O+VE',
+            donors: 2,
+            units: 3
+        },
+        {
+            group: 'O-VE',
+            donors: 1,
+            units: 2
+        },
+        {
+            group: 'B+VE',
+            donors: 4,
+            units: 5
+        },
+        {
+            group: 'A+VE',
+            donors: 1,
+            units: 2
+        }
+    ];
+
+    // Update dashboard card data dynamically
+    function updateDashboardCards() {
+        const cardElements = document.querySelectorAll('.card');
+
+        cardElements.forEach((card, index) => {
+            const data = dashboardData[index];
+            card.querySelector('h3').innerHTML = `Blood Group: <span class="highlight">${data.group}</span>`;
+            card.querySelector('p:nth-child(2)').innerHTML = `Number of Donors: <strong>${data.donors}</strong>`;
+            card.querySelector('p:nth-child(3)').innerHTML = `Available Units: <strong>${data.units}</strong>`;
+        });
+    }
+
+    // Initial update of dashboard cards
+    updateDashboardCards();
+</script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+package lk.ijse.donationsystem.service.impl;
+
+
+import lk.ijse.donationsystem.DonorStatus;
+import lk.ijse.donationsystem.dto.DonorDTO;
+import lk.ijse.donationsystem.entity.Donor;
+import lk.ijse.donationsystem.entity.User;
+import lk.ijse.donationsystem.repo.DonorRepository;
+import lk.ijse.donationsystem.repo.UserRepository;
+import lk.ijse.donationsystem.service.DonorService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.io.File;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class DonorServiceImpl implements DonorService {
+
+    @Autowired
+    private DonorRepository donorRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Override
+    public DonorDTO getDonorByEmail(String email) {
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        DonorDTO donorDTO = modelMapper.map(donor, DonorDTO.class);
+        donorDTO.setName(donor.getUser().getName()); // ✅ Set name from User entity
+
+        return donorDTO;
+    }
+
+    @Override
+    public List<DonorDTO> getAllDonors() {
+        List<Donor> donors = donorRepository.findAll();
+        return donors.stream()
+                .map(donor -> modelMapper.map(donor, DonorDTO.class))
+                .toList();
+    }
+
+    @Transactional
+    @Override
+    public String saveDonor(DonorDTO donorDTO) {
+      /*  // Check if the user exists
+        User user = userRepository.findByEmail(donorDTO.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
+
+        // Set the user's name if it's not already set
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(donorDTO.getName());
+        }
+*/
+        // Get authenticated user's email
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        // Check if the email in request matches logged-in user
+        if (!loggedInEmail.equals(donorDTO.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only create your own donor profile.");
+        }
+
+        // Check if the user exists
+        User user = userRepository.findByEmail(loggedInEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
+
+        // Check if the donor profile already exists
+        if (donorRepository.findByEmail(loggedInEmail) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor profile already exists.");
+        }
+
+        // Convert DonorDTO to Donor entity
+        Donor donor = modelMapper.map(donorDTO, Donor.class);
+
+        // Set user reference and donor status
+        donor.setUser(user);
+        user.setDonor(donor);
+
+        donor.setStatus(DonorStatus.ACTIVE);
+
+        // Save donor
+        donorRepository.save(donor);
+
+        return "Donor registered successfully.";
+    }
+
+/*
+    @Transactional
+    @Override
+    public String saveDonor(DonorDTO donorDTO) {
+        // Check if user exists for the given email
+        User user = userRepository.findByEmail(donorDTO.getEmail());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first.");
+        }
+
+
+        // If user is found, set the name for user if not already set (for new donor)
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(donorDTO.getName()); // Set the name if it's not set
+        }
+
+        // Convert DonorDTO to Donor entity
+        Donor donor = modelMapper.map(donorDTO, Donor.class);
+
+        // Set the user reference
+        donor.setUser(user);
+        user.setDonor(donor);
+
+        // Set default Donor Status to ACTIVE
+        //Donor donor = modelMapper.map(donorDTO, Donor.class);
+        donor.setUser(user);
+        donor.setStatus(DonorStatus.ACTIVE);
+
+
+        // Save donor
+        donorRepository.save(donor);
+
+        return "Donor registered successfully.";
+    }*/
+
+    @Transactional
+    @Override
+    public String updateDonorProfile(String email, DonorDTO donorDTO) {
+        // Get the authenticated user's email
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        // Check if the logged-in user is trying to update their own profile
+        if (!loggedInEmail.equals(loggedInEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile.");
+        }
+        // Find the donor by email
+        Donor donor = donorRepository.findByEmail(loggedInEmail);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // ✅ Update the User's Name (if provided)
+        if (donorDTO.getName() != null && !donorDTO.getName().isEmpty()) {
+            donor.getUser().setName(donorDTO.getName());  // Update User's name
+        }
+
+        // ✅ Update Donor's Phone & Address
+        if (donorDTO.getPhoneNumber() != null) {
+            donor.setPhoneNumber(donorDTO.getPhoneNumber());
+        }
+        if (donorDTO.getAddress() != null) {
+            donor.setAddress(donorDTO.getAddress());
+        }
+
+        // Save the updated Donor (which also saves the User due to CascadeType.ALL)
+        donorRepository.save(donor);
+
+        return "Donor profile updated successfully.";
+    }
+
+    @Transactional
+    @Override
+    public String updateDonorStatus(String email, String status) {
+       //donor find(email)
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // Update donor status
+        if (status.equalsIgnoreCase("ACTIVE")) {
+            donor.setStatus(DonorStatus.ACTIVE);
+        } else if (status.equalsIgnoreCase("INACTIVE")) {
+            donor.setStatus(DonorStatus.INACTIVE);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status. Use ACTIVE or INACTIVE.");
+        }
+
+        donorRepository.save(donor);
+        return "Donor status updated successfully.";
+    }
+
+    private static final String UPLOAD_DIR = "uploads/profile_pictures/";
+
+    @Transactional
+    @Override
+    public String uploadProfilePicture(String email, MultipartFile file) {
+
+        // Validate donor
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // Validate file
+        if (file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty.");
+        }
+
+        try {
+            // Create upload directory if it doesn’t exist
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            // Generate unique file name
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String filePath = UPLOAD_DIR + fileName;
+
+            // Save the file
+            file.transferTo(new File(filePath));
+
+            // Save file path in the database
+            donor.setProfilePictureUrl(filePath);
+            donorRepository.save(donor);
+
+            return "Profile picture updated successfully.";
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed.");
+        }
+    }
+}
+
+
+
+
+
+
+/*
+package lk.ijse.donationsystem.service.impl;
+
+import jakarta.transaction.Transactional;
+import lk.ijse.donationsystem.DonorStatus;
+import lk.ijse.donationsystem.dto.DonorDTO;
+import lk.ijse.donationsystem.entity.Donor;
+import lk.ijse.donationsystem.entity.User;
+import lk.ijse.donationsystem.repo.DonorRepository;
+import lk.ijse.donationsystem.repo.UserRepository;
+import lk.ijse.donationsystem.service.DonorService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@Service
+public class DonorServiceImpl implements DonorService {
+
+    @Autowired
+    private DonorRepository donorRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Override
+    public DonorDTO getDonorByEmail(String email) {
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        DonorDTO donorDTO = modelMapper.map(donor, DonorDTO.class);
+        donorDTO.setName(donor.getUser().getName()); // ✅ Set name from User entity
+
+        return donorDTO;
+    }
+
+    @Override
+    public List<DonorDTO> getAllDonors() {
+        List<Donor> donors = donorRepository.findAll();
+        return donors.stream()
+                .map(donor -> modelMapper.map(donor, DonorDTO.class))
+                .toList();
+    }
+
+    @Transactional
+    @Override
+    public String saveDonor(DonorDTO donorDTO) {
+        // Check if user exists for the given email
+        User user = userRepository.findByEmail(donorDTO.getEmail());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first.");
+        }
+
+        // Convert DonorDTO to Donor entity
+        Donor donor = modelMapper.map(donorDTO, Donor.class);
+
+        // Set the user reference
+        donor.setUser(user);
+        user.setDonor(donor);
+
+        // Save donor
+        donorRepository.save(donor);
+
+        return "Donor registered successfully.";
+    }
+
+
+    @Transactional
+    @Override
+    public String updateDonorProfile(String email, DonorDTO donorDTO) {
+        // Get the authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        // Ensure the donor can only update their own profile
+        if (!loggedInEmail.equals(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile.");
+        }
+
+        // Find the donor by email
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // ✅ Update the User's Name (if provided)
+        if (donorDTO.getName() != null && !donorDTO.getName().isEmpty()) {
+            donor.getUser().setName(donorDTO.getName());  // Update User's name
+        }
+
+        // ✅ Update Donor's Phone & Address
+        donor.setPhoneNumber(donorDTO.getPhoneNumber());
+        donor.setAddress(donorDTO.getAddress());
+
+        // Save the updated Donor (which also saves the User due to CascadeType.ALL)
+        donorRepository.save(donor);
+
+        return "Donor profile updated successfully.";
+    }
+
+  */
+/*  @Transactional
+    @Override
+    public String disableDonor(String email) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        User adminUser = userRepository.findByEmail(loggedInEmail);
+        if (adminUser == null || !adminUser.getRole().equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Admins can disable donors.");
+        }
+
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // Optional: Check if the donor is already inactive
+        if (donor.getStatus().equals(DonorStatus.INACTIVE)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor is already disabled.");
+        }
+        donor.setStatus(DonorStatus.INACTIVE); // Set to INACTIVE using the DonorStatus enum
+        donorRepository.save(donor);
+
+        return "Donor has been disabled.";
+    }
+
+    @Transactional
+    @Override
+    public String activateDonor(String email) {
+        // Find donor by email
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // Ensure that the donor is currently inactive
+        if (donor.getStatus().equals(DonorStatus.ACTIVE)) { // Compare with DonorStatus.ACTIVE
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor is already active.");
+        }
+
+        // Change status to ACTIVE
+        donor.setStatus(DonorStatus.ACTIVE); // Set to ACTIVE using the DonorStatus enum
+        donorRepository.save(donor);
+
+        return "Donor has been activated.";
+    }
+*//*
+
+
+   */
+/* @Transactional
+    @Override
+    public String disableDonor(String email) {
+        // Find the donor by email
+        Donor donor = donorRepository.findByEmail(email);
+        if (donor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
+        }
+
+        // Mark donor as INACTIVE
+        donor.setStatus("INACTIVE");
+        donorRepository.save(donor);
+
+        return "Donor account disabled successfully.";
+    }*//*
+
+
+}*/

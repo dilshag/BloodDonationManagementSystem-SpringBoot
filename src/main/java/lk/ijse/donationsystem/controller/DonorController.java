@@ -1,7 +1,14 @@
 package lk.ijse.donationsystem.controller;
 
+import lk.ijse.donationsystem.BloodType;
+import lk.ijse.donationsystem.DonorStatus;
 import lk.ijse.donationsystem.dto.DonorDTO;
+import lk.ijse.donationsystem.dto.DonorProfileDTO;
 import lk.ijse.donationsystem.service.DonorService;
+
+import lk.ijse.donationsystem.utill.ResponseUtil;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -9,7 +16,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/donor")
@@ -24,8 +38,52 @@ public class DonorController {
         this.donorService = donorService;
     }
 
+    private static final String UPLOAD_DIR = "uploads/";
+
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> registerDonorProfile(
+            @RequestParam("bloodType") String bloodType,
+            @RequestParam("address") String address,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("image") MultipartFile image) throws IOException {
+
+        // 1. Get logged-in user's email
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        // 2. Check if image is not empty
+        if (image.isEmpty()) {
+            throw new RuntimeException("Profile picture is required!");
+        }
+
+        // 3. Create upload directory if it doesn't exist
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        // 4. Save image with a unique filename
+        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        Path filePath = Paths.get(UPLOAD_DIR + fileName);
+        Files.write(filePath, image.getBytes());
+
+        // 5. Map to DonorDTO
+        DonorDTO donorDTO = new DonorDTO();
+        donorDTO.setEmail(loggedInEmail);
+        donorDTO.setBloodType(BloodType.valueOf(bloodType));
+        donorDTO.setAddress(address);
+        donorDTO.setPhoneNumber(phoneNumber);
+        donorDTO.setProfilePictureUrl("/" + UPLOAD_DIR + fileName); // this will be saved in DB
+
+        // 6. Save donor using service
+        String message = donorService.saveDonor(donorDTO);
+        return ResponseEntity.ok(message);
+    }
+
+
+
     //donor profile ekata register wenawa
-    @PostMapping("/register/profile")
+   /* @PostMapping("/register/profile")
     public ResponseEntity<String> registerDonorProfile(@RequestBody DonorDTO donorDTO) {
 
         // Get authenticated user's email
@@ -43,7 +101,7 @@ public class DonorController {
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Error: " + e.getMessage());
         }
-    }
+    }*/
     @GetMapping("/search/{email}")
     public ResponseEntity<DonorDTO> getDonorByEmail(@PathVariable String email) {
         try {
@@ -90,7 +148,7 @@ public class DonorController {
         }
     }
 
-    // ✅ Profile Picture Upload Endpoint
+   /* // ✅ Profile Picture Upload Endpoint
     @PostMapping("/upload/profile-picture")
     public ResponseEntity<String> uploadProfilePicture(
             @RequestParam("file") MultipartFile file) {
@@ -105,6 +163,13 @@ public class DonorController {
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Error: " + e.getMessage());
         }
+    }*/
+
+    @GetMapping("/profile")
+    public ResponseEntity<DonorProfileDTO> getLoggedInDonorProfile(Principal principal) {
+        String email = principal.getName(); // Extract from JWT or SecurityContext
+        DonorProfileDTO donorProfile = donorService.getDonorProfileByEmail(email);
+        return ResponseEntity.ok(donorProfile);
     }
 }
 

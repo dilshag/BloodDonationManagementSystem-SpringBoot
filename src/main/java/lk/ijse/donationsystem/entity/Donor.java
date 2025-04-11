@@ -49,22 +49,5 @@ public class Donor {
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
-    // ✅ Getter for Donor Name (from User entity)
-    public String getName() {
-        return user != null ? user.getName() : null;
-    }
 
-
-
-
-    /*@Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DonorStatus status; // Change this to DonorStatus
-*/
-    //private DonorStatus status = DonorStatus.ACTIVE;// Default status (ACTIVE or INACTIVE)
-
-
-    // Future collection of donations (if needed)
-    // @OneToMany(mappedBy = "donor")
-    // private List<BloodDonation> bloodDonations;
 }

@@ -76,6 +76,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/refreshToken",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
+                                "/uploads/**",
                                 "/swagger-ui.html").permitAll()
                        // .requestMatchers("/api/v1/donor/disable/**", "/api/v1/donor/activate/**").hasAuthority("ADMIN") // Ensure this path is accessible only by admin
                         .requestMatchers("/api/v1/user/getAll", "/api/v1/user/delete/**").hasAuthority("ADMIN") // Admin only

@@ -78,7 +78,7 @@ public class AuthController {
             authDTO.setEmail(loadedUser.getEmail());
             authDTO.setToken(token);
            // authDTO.setDonorRegistered(isDonorRegistered);
-            authDTO.setIsDonorRegistered(isDonorRegistered);  // Use the correct setter
+           // authDTO.setIsDonorRegistered(isDonorRegistered);  // Use the correct setter
 
         //authDTO.setIsDonorRegistered(isDonorRegistered); // Add donor registration status
 

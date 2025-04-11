@@ -99,6 +99,8 @@
             <input type="password" class="form-control" id="password" required>
         </div>
         <!--<button type="submit" class="btn btn-primary">Login</button>-->
+       <!-- <button type="button" id="loginButton">Login</button>-->
+
         <button type="submit" id="loginButton">Login</button>
     </form>
    <!-- <div class="form-footer">
@@ -108,6 +110,214 @@
         Don't have an account? <a href="register2.html" >Register Now</a>
     </div>
 </div>
+
+
+<script>
+    document.getElementById("loginButton").addEventListener("click", function (event) {
+        event.preventDefault();
+
+        let email = document.getElementById("email").value.trim();
+        let password = document.getElementById("password").value.trim();
+
+        if (!email || !password) {
+            alert("Please enter both email and password.");
+            return;
+        }
+
+        let user = { email, password };
+
+        fetch("http://localhost:8080/api/v1/auth/authenticate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user)
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (response.code === 201 && response.data.token) {
+                    // Store token properly
+                    localStorage.setItem("authToken", response.data.token);
+
+                    // Fetch user role
+                    fetch("http://localhost:8080/api/v1/admin/checkRole", {
+                        method: "GET",
+                        headers: { "Authorization": `Bearer ${response.data.token}` }
+                    })
+                        .then(response => response.json())
+                        .then(roleData => {
+                            console.log("Role:", roleData.role);
+
+                            if (roleData.role === "ADMIN") {
+                                window.location.href = "admin_dashboard.html";  // Redirect to Admin Dashboard
+                            }
+                            else if (roleData.role === "DONOR") {
+                                const token = response.data.token;
+                                localStorage.setItem("authToken", token);
+
+                                fetch("http://localhost:8080/api/v1/donor/profile", {
+                                    method: "GET",
+                                    headers: {
+                                        "Authorization": `Bearer ${token}`
+                                    }
+                                })
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Failed to fetch donor profile");
+                                        return res.json();
+                                    })
+                                    .then(donor => {
+                                        // Optional: store donor profile locally
+                                        localStorage.setItem("donorProfile", JSON.stringify(donor));
+
+                                        // Redirect to Donor_Profile.html after loading profile
+                                        setTimeout(() => {
+                                            window.location.href = "Donor_Profile.html";
+                                        }, 1500);
+                                    })
+                                    .catch(err => {
+                                        console.error("Error fetching donor profile:", err);
+                                        alert("Failed to load donor profile.");
+                                    });
+                            }
+                            else if (roleData.role === "RECIPIENT") {
+                                window.location.href = "dashboard.html";  // Redirect to User Dashboard
+                            } else {
+                                alert("User role not recognized.");
+                            }
+                        })
+
+                        .catch(error => {
+                            console.error("Error fetching role:", error);
+                            alert("Failed to determine user role.");
+                        });
+                } else {
+                    alert(response.message || "Login failed.");
+                }
+            })
+            .catch(error => {
+                console.error("Login error:", error);
+                alert("Login failed. Please try again.");
+            });
+    });
+
+    /*document.getElementById("registerButton").addEventListener("click", function() {
+        window.location.href = "register.html"; // Redirect to the registration page
+    });*/
+
+</script>
+
+</body>
+</html>
+
+
+<!--
+
+
+<script>
+    // Helper function to decode JWT token
+    function parseJwt(token) {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            return null;
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById("loginButton").addEventListener("click", function (event) {
+            console.log(document.getElementById("loginButton")); // Check if this prints the button element
+
+            event.preventDefault();
+            console.log("Login button clicked");
+            let email = document.getElementById("email").value.trim();
+            let password = document.getElementById("password").value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            let user = {email, password};
+
+            fetch("http://localhost:8080/api/v1/auth/authenticate", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(user)
+            })
+                .then(response => {
+                    console.log("Login response:", response);
+                    return response.json();
+                })
+                /* response.json())*/
+                .then(data => {
+                    console.log("Response data:", data);
+                    if (data.code === "201") {
+                        const token = data.data.token;
+                        localStorage.setItem("token", token);
+                        localStorage.setItem("email", data.data.email);
+
+                        fetch("http://localhost:8080/api/v1/admin/checkRole", {
+                            method: "GET",
+                            headers: {"Authorization": `Bearer ${token}`}
+                        })
+                            .then(response => response.json())
+                            .then(roleData => {
+                                console.log("Role data from backend:", roleData);
+
+                                const decoded = parseJwt(token);
+                                const userEmail = decoded.sub;
+
+                                if (roleData.role === "ADMIN") {
+                                    console.log("Redirecting to admin dashboard...");
+                                    window.location.href = "Frontend/admin_dashboard.html";
+                                } else if (roleData.role === "DONOR") {
+                                    // Check if donor profile exists using email
+                                    fetch(`http://localhost:8080/api/v1/donor/search/${userEmail}`, {
+                                        headers: {"Authorization": `Bearer ${token}`}
+                                    })
+                                        .then(donorRes => {
+                                            if (!donorRes.ok) throw new Error("Donor profile fetch failed");
+                                            return donorRes.json();
+                                        })
+                                        .then(donorData => {
+                                            if (donorData) {
+                                                localStorage.setItem("donorProfile", JSON.stringify(donorData));
+                                                window.location.href = "Donor_Profile.html";
+                                            } else {
+                                                window.location.href = "Donor_Register.html";
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.error("Error checking donor profile:", err);
+                                            alert("Something went wrong loading donor profile.");
+                                        });
+                                } else if (roleData.role === "RECIPIENT") {
+                                    window.location.href = "dashboard.html";
+                                } else {
+                                    alert("User role not recognized.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error fetching role:", error);
+                                alert("Failed to determine user role.");
+                            });
+
+                    } else {
+                        alert(data.message || "Login failed.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Login error:", error);
+                    alert("Login failed. Please try again.");
+                });
+        });
+    });
+
+</script>
+
+
+-->
+
+<!--
+
+
 <script>
     document.getElementById("loginButton").addEventListener("click", function (event) {
         event.preventDefault();
@@ -171,72 +381,4 @@
     });
 
 </script>
-
-
-<!--
-<script>
-    document.getElementById("loginButton").addEventListener("click", function (event) {
-        event.preventDefault();
-
-        let email = document.getElementById("email").value.trim();
-        let password = document.getElementById("password").value.trim();
-
-        if (!email || !password) {
-            alert("Please enter both email and password.");
-            return;
-        }
-
-        let user = { email, password };
-
-        fetch("http://localhost:8080/api/v1/auth/authenticate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user)
-        })
-            .then(response => response.json())
-            .then(response => {
-                if (response.code === 201 && response.data.token) {
-                    // Store token properly
-                    localStorage.setItem("authToken", response.data.token);
-
-                    // Fetch user role
-                    fetch("http://localhost:8080/api/v1/admin/checkRole", {
-                        method: "GET",
-                        headers: { "Authorization": `Bearer ${response.data.token}` }
-                    })
-                        .then(response => response.json())
-                        .then(roleData => {
-                            console.log("Role:", roleData.role);
-
-                            if (roleData.role === "ADMIN") {
-                                window.location.href = "admin_dashboard.html";  // Redirect to Admin Dashboard
-                            } else if (roleData.role === "DONOR") {
-                                window.location.href = "Donor_Register.html";
-                            } else if (roleData.role === "RECIPIENT") {
-                                window.location.href = "dashboard.html";  // Redirect to User Dashboard
-                            } else {
-                                alert("User role not recognized.");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching role:", error);
-                            alert("Failed to determine user role.");
-                        });
-                } else {
-                    alert(response.message || "Login failed.");
-                }
-            })
-            .catch(error => {
-                console.error("Login error:", error);
-                alert("Login failed. Please try again.");
-            });
-    });
-
-    /*document.getElementById("registerButton").addEventListener("click", function() {
-        window.location.href = "register.html"; // Redirect to the registration page
-    });*/
-
-</script>-->
-
-</body>
-</html>
+-->

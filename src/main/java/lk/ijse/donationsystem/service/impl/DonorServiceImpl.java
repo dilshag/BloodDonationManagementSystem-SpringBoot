@@ -3,6 +3,7 @@ package lk.ijse.donationsystem.service.impl;
 
 import lk.ijse.donationsystem.DonorStatus;
 import lk.ijse.donationsystem.dto.DonorDTO;
+import lk.ijse.donationsystem.dto.DonorProfileDTO;
 import lk.ijse.donationsystem.entity.Donor;
 import lk.ijse.donationsystem.entity.User;
 import lk.ijse.donationsystem.repo.DonorRepository;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,10 +57,10 @@ public class DonorServiceImpl implements DonorService {
                 .toList();
     }
 
-    @Transactional
-    @Override
-    public String saveDonor(DonorDTO donorDTO) {
-      /*  // Check if the user exists
+    /* @Transactional
+     @Override
+     public String saveDonor(DonorDTO donorDTO) {
+       *//*  // Check if the user exists
         User user = userRepository.findByEmail(donorDTO.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
 
@@ -66,7 +68,7 @@ public class DonorServiceImpl implements DonorService {
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(donorDTO.getName());
         }
-*/
+*//*
         // Get authenticated user's email
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedInEmail = authentication.getName();
@@ -99,6 +101,70 @@ public class DonorServiceImpl implements DonorService {
 
         return "Donor registered successfully.";
     }
+*/
+  /* public void registerDonor(DonorDTO donorDTO) {
+       Optional<User> userOptional = userRepository.findById(donorDTO.getId());
+
+       if (userOptional.isPresent()) {
+           User user = userOptional.get();
+
+           Donor donor = new Donor();
+           donor.setId(user.getId()); // Shared PK with User
+           donor.setUser(user);
+           donor.setEmail(user.getEmail()); // Getting from User entity
+           donor.setBloodType(donorDTO.getBloodType());
+           donor.setAddress(donorDTO.getAddress());
+           donor.setPhoneNumber(donorDTO.getPhoneNumber());
+           donor.setStatus(DonorStatus.ACTIVE); // Default
+           donor.setProfilePictureUrl(donorDTO.getProfilePictureUrl());
+
+           donorRepository.save(donor);
+       } else {
+           throw new RuntimeException("User not found for ID: " + donorDTO.getId());
+       }
+   }
+*/
+    @Transactional
+    @Override
+    public String saveDonor(DonorDTO donorDTO) {
+
+        // Get authenticated user's email
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+
+        // Security check: email match
+        if (!loggedInEmail.equals(donorDTO.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only create your own donor profile.");
+        }
+
+        // Validate user
+        User user = userRepository.findByEmail(loggedInEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
+
+        // Prevent duplicate donor profiles
+        if (donorRepository.findByEmail(loggedInEmail) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor profile already exists.");
+        }
+
+        // ✅ Map DTO → Entity
+        Donor donor = modelMapper.map(donorDTO, Donor.class);
+
+        // Set the user (relationship binding)
+        donor.setUser(user);
+        user.setDonor(donor);
+
+        // Set active status
+        donor.setStatus(DonorStatus.ACTIVE);
+
+        // ✅ Set profile picture URL from DTO
+        donor.setProfilePictureUrl(donorDTO.getProfilePictureUrl());
+
+        // Save
+        donorRepository.save(donor);
+
+        return "Donor registered successfully.";
+    }
+
 
 /*
     @Transactional
@@ -195,7 +261,7 @@ public class DonorServiceImpl implements DonorService {
 
     private static final String UPLOAD_DIR = "uploads/profile_pictures/";
 
-    @Transactional
+    /*@Transactional
     @Override
     public String uploadProfilePicture(String email, MultipartFile file) {
 
@@ -232,6 +298,22 @@ public class DonorServiceImpl implements DonorService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed.");
         }
+    }*/
+
+    @Override
+    public DonorProfileDTO getDonorProfileByEmail(String email) {
+        Donor donor = donorRepository.findByUserEmail(email)
+                .orElseThrow(() -> new RuntimeException("Donor not found for email: " + email));
+
+        return new DonorProfileDTO(
+                donor.getUser().getName(),
+                donor.getEmail(),
+                donor.getPhoneNumber(),
+                donor.getAddress(),
+                donor.getBloodType(),
+                donor.getStatus(),
+                donor.getProfilePictureUrl()
+        );
     }
 }
 

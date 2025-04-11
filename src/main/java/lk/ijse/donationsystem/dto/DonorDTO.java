@@ -2,10 +2,7 @@ package lk.ijse.donationsystem.dto;
 
 import lk.ijse.donationsystem.BloodType;
 import lk.ijse.donationsystem.DonorStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -13,6 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
+@Data
 public class DonorDTO {
     private UUID id;
 

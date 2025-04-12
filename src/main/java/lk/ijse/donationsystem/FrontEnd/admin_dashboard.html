@@ -129,7 +129,7 @@
         <li onclick="navigateToDonorList()">❤️ Donors</li>
         <li onclick="navigateToUserList()">👤 Users</li> <!-- Add a click event to navigate -->
         <li>📄 Blood Requests</li>
-        <li>🩸 Blood Bank</li>
+        <li onclick="navigateToBloodBankList()">🩸 Blood Bank</li>
         <li>🩸 Blood Stock</li>
         <li onclick="navigateToDashboard()">🩸 Dashboard </li>
 
@@ -176,6 +176,9 @@
     }
     function navigateToDashboard() {
         window.location.href = "dashboard.html"; // Change this to the actual path
+    }
+    function navigateToBloodBankList() {
+        window.location.href = "BloodBank.html"; // Change this to the actual path
     }
 
     // Sidebar Toggle

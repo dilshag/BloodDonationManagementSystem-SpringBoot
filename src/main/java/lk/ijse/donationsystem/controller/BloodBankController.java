@@ -1,11 +1,15 @@
 package lk.ijse.donationsystem.controller;
 
+import lk.ijse.donationsystem.BloodBankStatus;
 import lk.ijse.donationsystem.dto.BloodBankDTO;
 import lk.ijse.donationsystem.service.BloodBankService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -19,6 +23,7 @@ public class BloodBankController {
         this.bloodBankService = bloodBankService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<String> addBloodBank(@RequestBody BloodBankDTO bloodBankDTO) {
         try {
@@ -28,11 +33,13 @@ public class BloodBankController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<BloodBankDTO>> getAllBloodBanks() {
         return ResponseEntity.ok(bloodBankService.getAllBloodBanks());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<BloodBankDTO> getBloodBankById(@PathVariable UUID id) {
         BloodBankDTO bloodBankDTO = bloodBankService.getBloodBankById(id);
@@ -42,6 +49,7 @@ public class BloodBankController {
         return ResponseEntity.ok(bloodBankDTO);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateBloodBank(@PathVariable UUID id, @RequestBody BloodBankDTO bloodBankDTO) {
         try {
@@ -51,6 +59,7 @@ public class BloodBankController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteBloodBank(@PathVariable UUID id) {
         try {
@@ -59,58 +68,24 @@ public class BloodBankController {
             return ResponseEntity.status(400).body("Error: " + e.getMessage());
         }
     }
-}
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/set-status/{id}")
+    public ResponseEntity<Map<String, String>> setBloodBankStatus(
+            @PathVariable UUID id,
+            @RequestParam BloodBankStatus status) {
 
-
-
-/*
-package lk.ijse.donationsystem.controller;
-
-import lk.ijse.donationsystem.dto.BloodBankDTO;
-import lk.ijse.donationsystem.service.BloodBankService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
-
-@RestController
-@RequestMapping("/api/v1/bloodbanks")
-//@CrossOrigin("*")
-@CrossOrigin(origins = "http://localhost:63342")
-
-public class BloodBankController {
-
-    private final BloodBankService bloodBankService;
-
-    public BloodBankController(BloodBankService bloodBankService) {
-        this.bloodBankService = bloodBankService;
+        String message = bloodBankService.setStatus(id, status);
+        return ResponseEntity.ok(Collections.singletonMap("message", message));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addBloodBank(@RequestBody BloodBankDTO bloodBankDTO) {
-        return ResponseEntity.ok(bloodBankService.addBloodBank(bloodBankDTO));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<BloodBankDTO>> getAllBloodBanks() {
-        return ResponseEntity.ok(bloodBankService.getAllBloodBanks());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<BloodBankDTO> getBloodBankById(@PathVariable UUID id) {
-        return ResponseEntity.ok(bloodBankService.getBloodBankById(id));
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateBloodBank(@PathVariable UUID id, @RequestBody BloodBankDTO bloodBankDTO) {
-        return ResponseEntity.ok(bloodBankService.updateBloodBank(id, bloodBankDTO));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteBloodBank(@PathVariable UUID id) {
-        return ResponseEntity.ok(bloodBankService.deleteBloodBank(id));
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/active")
+    public ResponseEntity<List<BloodBankDTO>> getAllActiveBloodBanks() {
+        List<BloodBankDTO> activeBloodBanks = bloodBankService.getAllActiveBloodBanks();
+        return ResponseEntity.ok(activeBloodBanks);
     }
 }
-*/
+
+
+

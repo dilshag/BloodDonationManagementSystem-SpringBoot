@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,38 +33,16 @@ public class BloodInventory {
     private BloodBank bloodBank;
 
     @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BloodStock> bloodStockList;
+    private List<BloodStock> bloodStockList = new ArrayList<>(); // Initialize list
+
+    /*public void addBloodStock(BloodStock bloodStock) {
+        this.bloodStockList.add(bloodStock);
+        bloodStock.setInventory(this);
+    }
+
+    public void removeBloodStock(BloodStock bloodStock) {
+        this.bloodStockList.remove(bloodStock);
+        bloodStock.setInventory(null);
+    }*/
 }
 
-
-/*
-@Entity
-@Table(name = "blood_inventory")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class BloodInventory {
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BloodType bloodType;
-
-    @Column(nullable = false)
-    private String quantity;
-
-    @Column(nullable = false)
-    private LocalDate expiryDate; // Changed from String to LocalDate
-
-    @OneToOne
-    @JoinColumn(name = "blood_bank_id", unique = true)
-    private BloodBank bloodBank;
-   *//* @ManyToOne
-    @JoinColumn(name = "blood_bank_id")
-    private BloodBank bloodBank;*//*
-}*/

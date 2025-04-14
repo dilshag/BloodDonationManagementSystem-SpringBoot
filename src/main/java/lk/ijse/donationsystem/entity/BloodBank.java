@@ -49,4 +49,3 @@ public class BloodBank {
     private List<BloodDonation> bloodDonations;  // If you have Blood Donations entity
 
 }
-

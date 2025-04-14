@@ -3,7 +3,9 @@ package lk.ijse.donationsystem.service.impl;
 import lk.ijse.donationsystem.BloodBankStatus;
 import lk.ijse.donationsystem.dto.BloodBankDTO;
 import lk.ijse.donationsystem.entity.BloodBank;
+import lk.ijse.donationsystem.entity.BloodInventory;
 import lk.ijse.donationsystem.repo.BloodBankRepository;
+import lk.ijse.donationsystem.repo.BloodInventoryRepository;
 import lk.ijse.donationsystem.service.BloodBankService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class BloodBankServiceImpl implements BloodBankService {
-@Autowired
-    private final BloodBankRepository bloodBankRepository;
+    @Autowired
+    private BloodInventoryRepository bloodInventoryRepository;
+
+
+    @Autowired
+    private  BloodBankRepository bloodBankRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -34,11 +40,23 @@ public class BloodBankServiceImpl implements BloodBankService {
         bloodBank.setLocation(bloodBankDTO.getLocation());
         bloodBank.setPhoneNumber(bloodBankDTO.getPhoneNumber());
         bloodBank.setEmail(bloodBankDTO.getEmail());
-       // bloodBank.setStatus(bloodBankDTO.getStatus());
+        bloodBank.setStatus(BloodBankStatus.ENABLED); // Default status
 
+        // bloodBank.setStatus(bloodBankDTO.getStatus());
+
+        // Link BloodInventory
+        BloodInventory inventory = new BloodInventory();
+        inventory.setBloodBank(bloodBank);      // Set FK
+        bloodBank.setBloodInventory(inventory); // Set bi-directional mapping
+
+        // Save both (cascade is preferred, or manual save)
         bloodBankRepository.save(bloodBank);
+        // Optional: bloodInventoryRepository.save(inventory); → only if not using Cascade
+
+        return "Blood bank and inventory added successfully.";
+      /*  bloodBankRepository.save(bloodBank);
         return "Blood bank added successfully.";
-    }
+  */  }
 
     @Override
     public List<BloodBankDTO> getAllBloodBanks() {

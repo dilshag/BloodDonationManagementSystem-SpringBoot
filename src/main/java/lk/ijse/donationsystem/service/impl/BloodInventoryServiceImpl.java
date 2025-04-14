@@ -1,132 +1,108 @@
+/*
 package lk.ijse.donationsystem.service.impl;
 
 import lk.ijse.donationsystem.dto.BloodInventoryDTO;
-import lk.ijse.donationsystem.entity.BloodInventory;
+
 import lk.ijse.donationsystem.entity.BloodBank;
-import lk.ijse.donationsystem.repo.BloodInventoryRepository;
+import lk.ijse.donationsystem.entity.BloodInventory;
+import lk.ijse.donationsystem.entity.BloodStock;
+
 import lk.ijse.donationsystem.repo.BloodBankRepository;
+
+import lk.ijse.donationsystem.repo.BloodInventoryRepository;
+
 import lk.ijse.donationsystem.repo.BloodStockRepository;
 import lk.ijse.donationsystem.service.BloodInventoryService;
+
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BloodInventoryServiceImpl implements BloodInventoryService {
 
-    private final BloodInventoryRepository bloodInventoryRepository;
-    private final BloodBankRepository bloodBankRepository;
-    private final BloodStockRepository bloodStockRepository;
+    @Autowired
+    private BloodInventoryRepository inventoryRepository;
 
-    public BloodInventoryServiceImpl(BloodInventoryRepository bloodInventoryRepository, BloodBankRepository bloodBankRepository, BloodStockRepository bloodStockRepository) {
-        this.bloodInventoryRepository = bloodInventoryRepository;
-        this.bloodBankRepository = bloodBankRepository;
-        this.bloodStockRepository = bloodStockRepository;
-    }
-    @Override
-    public String addBloodInventory(BloodInventoryDTO bloodInventoryDTO) {
-        // Extract BloodBank ID
-        UUID bloodBankId = bloodInventoryDTO.getBloodBankId();
+    @Autowired
+    private BloodBankRepository bloodBankRepository;
 
-        // Find BloodBank by ID
+    @Autowired
+    private BloodStockRepository bloodStockRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    */
+/*@Autowired
+    private BloodStockMapper stockMapper;
+*//*
+ @Override
+    public BloodInventoryDTO createInventory(UUID bloodBankId) {
         BloodBank bloodBank = bloodBankRepository.findById(bloodBankId)
-                .orElseThrow(() -> new RuntimeException("BloodBank not found"));
+                .orElseThrow(() -> new RuntimeException("Blood Bank not found"));
 
-        // Check if Blood Inventory already exists
-        if (bloodInventoryRepository.findByBloodBankId(bloodBankId).isPresent()) {
-            return "Blood inventory already exists for this blood bank.";
-        }
-
-        // Create new Blood Inventory
-        BloodInventory bloodInventory = new BloodInventory();
-        bloodInventory.setBloodBank(bloodBank);
-        bloodInventory.setBloodStockList(new ArrayList<>()); // Initialize empty stock list
-
-        bloodInventoryRepository.save(bloodInventory);
-
-        return "Blood inventory added successfully.";
+        BloodInventory inventory = new BloodInventory();
+        inventory.setBloodBank(bloodBank);
+        //inventory.setBloodStockList(List.of()); // initially empty
+        inventory.setBloodStockList(new ArrayList<>()); // Use mutable ArrayList
+        BloodInventory saved = inventoryRepository.save(inventory);
+        return modelMapper.map(saved, BloodInventoryDTO.class);
     }
 
     @Override
-    public String updateBloodInventory(UUID bloodInventoryId, String quantity) {
-        return "";
+    public BloodInventoryDTO getInventoryByBloodBankId(UUID bloodBankId) {
+        BloodInventory inventory = inventoryRepository.findByBloodBankId(bloodBankId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        return modelMapper.map(inventory, BloodInventoryDTO.class);
     }
 
     @Override
-    public BloodInventoryDTO getBloodInventory(UUID bloodBankId) {
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankId(bloodBankId)
-                .orElseThrow(() -> new RuntimeException("Blood Inventory not found for this Blood Bank"));
+    @Transactional
+    public BloodInventoryDTO addBloodStock(UUID inventoryId, BloodInventoryDTO dto) {
+        BloodInventory inventory = inventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        return new BloodInventoryDTO(
-                bloodInventory.getId(),
-                bloodInventory.getBloodBank().getId(),
-                new ArrayList<>()
-        );
+        List<BloodStock> newStock = dto.getBloodStockList().stream()
+                .map(stockDTO -> {
+                    BloodStock stock = modelMapper.map(stockDTO, BloodStock.class);
+                    stock.setInventory(inventory);
+                    return stock;
+                })
+                .collect(Collectors.toList());
+
+        inventory.getBloodStockList().addAll(newStock);
+        inventoryRepository.save(inventory); // cascade saves
+
+        return modelMapper.map(inventory, BloodInventoryDTO.class);
     }
 
+    @Override
+    public void removeBloodStock(UUID inventoryId, UUID bloodStockId) {
+        BloodInventory inventory = inventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
+        BloodStock stockToRemove = bloodStockRepository.findById(bloodStockId)
+                .orElseThrow(() -> new RuntimeException("Stock not found"));
+
+        inventory.getBloodStockList().removeIf(stock -> stock.getId().equals(bloodStockId));
+        bloodStockRepository.delete(stockToRemove);
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public List<BloodInventoryDTO> getAllInventories() {
+        return inventoryRepository.findAll().stream()
+                .map(inventory -> modelMapper.map(inventory, BloodInventoryDTO.class))
+                .collect(Collectors.toList());
+    }
 }
-
-/*
-@Service
-public class BloodInventoryServiceImpl implements BloodInventoryService {
-
-    private final BloodInventoryRepository bloodInventoryRepository;
-    private final BloodBankRepository bloodBankRepository;
-
-    public BloodInventoryServiceImpl(BloodInventoryRepository bloodInventoryRepository, BloodBankRepository bloodBankRepository) {
-        this.bloodInventoryRepository = bloodInventoryRepository;
-        this.bloodBankRepository = bloodBankRepository;
-    }
-
-    @Override
-    public String addBloodInventory(BloodInventoryDTO bloodInventoryDTO) {
-        // Find BloodBank by ID
-        BloodBank bloodBank = bloodBankRepository.findById(bloodInventoryDTO.getBloodBankId())
-                .orElseThrow(() -> new RuntimeException("BloodBank not found"));
-
-        // Create a new BloodInventory entity
-        BloodInventory bloodInventory = new BloodInventory();
-        bloodInventory.setBloodType(bloodInventoryDTO.getBloodType());
-        bloodInventory.setQuantity(bloodInventoryDTO.getQuantity());
-        bloodInventory.setExpiryDate(bloodInventoryDTO.getExpiryDate());
-        bloodInventory.setBloodBank(bloodBank);
-
-        // Save the new BloodInventory
-        bloodInventoryRepository.save(bloodInventory);
-
-        return "Blood inventory added successfully.";
-    }
-
-    @Override
-    public BloodInventoryDTO getBloodInventory(UUID bloodBankId) {
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankId(bloodBankId);
-        if (bloodInventory == null) {
-            return null; // or throw an exception if needed
-        }
-
-        // Convert the entity to DTO
-        return new BloodInventoryDTO(
-                bloodInventory.getId(),
-                bloodInventory.getBloodType(),
-                bloodInventory.getQuantity(),
-                bloodInventory.getExpiryDate(),
-                bloodInventory.getBloodBank().getId()
-        );
-    }
-
-    @Override
-    public String updateBloodInventory(UUID bloodInventoryId, String quantity) {
-        BloodInventory bloodInventory = bloodInventoryRepository.findById(bloodInventoryId)
-                .orElseThrow(() -> new RuntimeException("Blood Inventory not found"));
-
-        // Update the quantity in the inventory
-        bloodInventory.setQuantity(String.valueOf(Integer.parseInt(bloodInventory.getQuantity()) + quantity));
-
-        // Save the updated inventory
-        bloodInventoryRepository.save(bloodInventory);
-
-        return "Blood inventory updated successfully.";
-    }*/
-
+*/

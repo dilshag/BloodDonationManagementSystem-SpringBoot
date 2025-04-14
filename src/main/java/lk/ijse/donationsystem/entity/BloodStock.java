@@ -35,7 +35,12 @@ public class BloodStock {
     @Column(nullable = false)
     private LocalDate expiryDate;
 
+    private LocalDate donatedDate;
+
     @ManyToOne
     @JoinColumn(name = "inventory_id", nullable = false)
     private BloodInventory inventory;
+
+    @OneToOne(mappedBy = "bloodStock")
+    private BloodDonation donation;
 }

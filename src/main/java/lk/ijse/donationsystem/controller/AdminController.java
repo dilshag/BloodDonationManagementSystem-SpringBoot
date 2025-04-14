@@ -31,17 +31,17 @@ public class AdminController {
         return "passed~!2";
     }
 
-   // @PreAuthorize("hasAuthority('ADMIN')")
-   @GetMapping("/checkRole")
-   public String checkRole() {
-       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-       String role = authentication.getAuthorities().stream()
-               .map(authority -> authority.getAuthority())
-               .findFirst()
-               .orElse("UNKNOWN");
+    // @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/checkRole")
+    public String checkRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .findFirst()
+                .orElse("UNKNOWN");
 
-       return "{\"role\": \"" + role + "\"}";
-   }
+        return "{\"role\": \"" + role + "\"}";
+    }
 
 
       /*  @GetMapping("/admin-dashboard")

@@ -1,175 +1,119 @@
+/*
 package lk.ijse.donationsystem.service.impl;
 
-
-import lk.ijse.donationsystem.BloodType;
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
 import lk.ijse.donationsystem.entity.*;
+import lk.ijse.donationsystem.exception.*;
 import lk.ijse.donationsystem.repo.*;
 import lk.ijse.donationsystem.service.BloodDonationService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-
-
-
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class BloodDonationServiceImpl implements BloodDonationService {
 
-    private final DonorRepository donorRepository;
-    private final BloodBankRepository bloodBankRepository;
-    private final BloodInventoryRepository bloodInventoryRepository;
-    private final BloodStockRepository bloodStockRepository;
-    private final BloodDonationRepository bloodDonationRepository;
+    @Autowired
+    private BloodDonationRepository donationRepository;
 
-    public BloodDonationServiceImpl(DonorRepository donorRepository, BloodBankRepository bloodBankRepository,
-                                    BloodInventoryRepository bloodInventoryRepository, BloodStockRepository bloodStockRepository,
-                                    BloodDonationRepository bloodDonationRepository) {
-        this.donorRepository = donorRepository;
-        this.bloodBankRepository = bloodBankRepository;
-        this.bloodInventoryRepository = bloodInventoryRepository;
-        this.bloodStockRepository = bloodStockRepository;
-        this.bloodDonationRepository = bloodDonationRepository;
+    @Autowired
+    private DonorRepository donorRepository;
+
+    @Autowired
+    private BloodBankRepository bankRepository;
+
+    @Autowired
+    private BloodStockRepository stockRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Override
+    public BloodDonationDTO recordDonation(BloodDonationDTO dto) {
+        validateDonationDTO(dto);
+
+        Donor donor = donorRepository.findById(dto.getDonorId())
+                .orElseThrow(() -> new DonorNotFoundException(dto.getDonorId()));
+
+        BloodBank bank = bankRepository.findById(dto.getBloodBankId())
+                .orElseThrow(() -> new BloodBankNotFoundException(dto.getBloodBankId()));
+
+        BloodDonation donation = modelMapper.map(dto, BloodDonation.class);
+        donation.setDonor(donor);
+        donation.setBloodBank(bank);
+
+        BloodStock stock = createBloodStock(dto, bank, donation);
+        donation.setBloodStock(stock);
+
+        BloodDonation savedDonation = donationRepository.save(donation);
+        stockRepository.save(stock);
+
+        return modelMapper.map(savedDonation, BloodDonationDTO.class);
     }
 
-    @Transactional
-    @Override
-    public String donateBlood(BloodDonationDTO bloodDonationDTO) throws Exception {
-        // Find the donor
-        Donor donor = donorRepository.findById(bloodDonationDTO.getDonorId())
-                .orElseThrow(() -> new Exception("Donor not found."));
-
-        // Find the blood bank
-        BloodBank bloodBank = bloodBankRepository.findById(bloodDonationDTO.getBloodBankId())
-                .orElseThrow(() -> new Exception("Blood Bank not found."));
-
-        // Check if blood inventory exists
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankId(bloodBank.getId())
-                .orElseThrow(() -> new Exception("Blood Inventory not found for this blood bank."));
-
-        // Find existing blood stock for this blood type
-        BloodStock bloodStock = bloodStockRepository.findByInventoryIdAndBloodType(bloodInventory.getId(), bloodDonationDTO.getBloodType())
-                .orElse(null);
-
-        // If no stock exists for this blood type, create a new record
-        if (bloodStock == null) {
-            bloodStock = new BloodStock();
-            bloodStock.setInventory(bloodInventory);
-            bloodStock.setBloodType(bloodDonationDTO.getBloodType());
-            bloodStock.setQuantity(0);
-            bloodStock.setExpiryDate(LocalDate.now().plusMonths(3)); // Set expiry date
+    private BloodStock createBloodStock(BloodDonationDTO dto, BloodBank bank, BloodDonation donation) {
+        if (bank.getBloodInventory() == null) {
+            throw new RuntimeException("Blood inventory not found for bank: " + bank.getId());
         }
 
-        // Update quantity
-        bloodStock.setQuantity(bloodStock.getQuantity() + bloodDonationDTO.getQuantity());
-
-        // Save updated stock
-        bloodStockRepository.save(bloodStock);
-
-        // Create a new blood donation record
-        BloodDonation bloodDonation = new BloodDonation();
-        bloodDonation.setDonor(donor);
-        bloodDonation.setBloodBank(bloodBank);
-        bloodDonation.setBloodType(bloodDonationDTO.getBloodType());
-        bloodDonation.setQuantity(bloodDonationDTO.getQuantity());
-        bloodDonation.setDonationDate(LocalDate.now());
-
-        // Save blood donation
-        bloodDonationRepository.save(bloodDonation);
-
-        return "Blood donation recorded successfully.";
-    }
-}
-
-/*
-
-@Service
-public class BloodDonationServiceImpl implements BloodDonationService {
-
-    private final DonorRepository donorRepository;
-    private final BloodBankRepository bloodBankRepository;
-    private final BloodInventoryRepository bloodInventoryRepository;
-    private final BloodDonationRepository bloodDonationRepository;
-
-    public BloodDonationServiceImpl(DonorRepository donorRepository, BloodBankRepository bloodBankRepository,
-                                    BloodInventoryRepository bloodInventoryRepository, BloodDonationRepository bloodDonationRepository) {
-        this.donorRepository = donorRepository;
-        this.bloodBankRepository = bloodBankRepository;
-        this.bloodInventoryRepository = bloodInventoryRepository;
-        this.bloodDonationRepository = bloodDonationRepository;
+        BloodStock stock = new BloodStock();
+        stock.setBloodType(dto.getBloodType());
+        stock.setQuantity(dto.getQuantity());
+        stock.setDonatedDate(dto.getDonationDate());
+        stock.setExpiryDate(calculateExpiryDate(dto.getDonationDate()));
+        stock.setInventory(bank.getBloodInventory());
+        stock.setDonation(donation);
+        return stock;
     }
 
-    @Transactional
+    private LocalDate calculateExpiryDate(LocalDate donationDate) {
+        return donationDate.plusDays(35); // RBC lasts 35 days
+    }
+
+    private void validateDonationDTO(BloodDonationDTO dto) {
+        if (dto == null) {
+            throw new InvalidDonationException("Donation data cannot be null");
+        }
+        if (dto.getQuantity() <= 0) {
+            throw new InvalidDonationException("Quantity must be positive");
+        }
+        if (dto.getDonationDate() == null || dto.getDonationDate().isAfter(LocalDate.now())) {
+            throw new InvalidDonationException("Invalid donation date");
+        }
+    }
+
     @Override
-    public String donateBlood(BloodDonationDTO bloodDonationDTO) throws Exception {
-        // Find the donor by ID
-        Donor donor = donorRepository.findById(bloodDonationDTO.getDonorId()).orElseThrow(() -> new Exception("Donor not found."));
-
-        // Find the blood bank by ID
-        BloodBank bloodBank = bloodBankRepository.findById(bloodDonationDTO.getBloodBankId())
-                .orElseThrow(() -> new Exception("Blood Bank not found."));
-*/
-/*
-        // ✅ Check if bloodType is provided
-        if (bloodDonationDTO.getBloodType() == null || bloodDonationDTO.getBloodType().isEmpty()) {
-            throw new Exception("Blood type cannot be null or empty.");
-        }*//*
-
-
-        // Convert String bloodType to Enum
-        BloodType bloodType = bloodDonationDTO.getBloodType();
-
-        // Create a new blood donation record
-        BloodDonation bloodDonation = new BloodDonation();
-        bloodDonation.setDonor(donor);
-        bloodDonation.setBloodBank(bloodBank);
-        bloodDonation.setBloodType(bloodDonationDTO.getBloodType()); //  Set blood type
-        bloodDonation.setQuantity(bloodDonationDTO.getQuantity());
-        bloodDonation.setDonationDate(bloodDonationDTO.getDonationDate());
-
-        // Save the blood donation record
-        bloodDonationRepository.save(bloodDonation);
-
-
-
-       */
-/* // Update the blood bank inventory
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankIdAndBloodType(
-                bloodDonationDTO.getBloodBankId(), bloodDonationDTO.getQuantity()
-        );*//*
-
-
-       */
-/* // Fetch the correct blood inventory
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankIdAndBloodType(
-                bloodDonationDTO.getBloodBankId(), bloodType
-        );*//*
-
-
-
-
-        // ✅ Check if Blood Inventory exists
-        BloodInventory bloodInventory = bloodInventoryRepository.findByBloodBankIdAndBloodType(
-                bloodDonationDTO.getBloodBankId(), bloodType
-        );
-
-        if (bloodInventory == null) {
-            System.out.println("No inventory found, creating new one...");
-            bloodInventory = new BloodInventory();
-            bloodInventory.setBloodBank(bloodBank);
-            bloodInventory.setBloodType(bloodType);
-            bloodInventory.setQuantity("0"); // Initially empty
-            bloodInventory.setExpiryDate(LocalDate.now().plusMonths(3)); // ✅ Set expiry date
-            bloodInventoryRepository.save(bloodInventory);  }
-
-        // Update inventory quantity
-        bloodInventory.setQuantity(String.valueOf(Integer.parseInt(bloodInventory.getQuantity()) + Integer.parseInt(bloodDonationDTO.getQuantity())));
-
-        // Save the updated inventory
-        bloodInventoryRepository.save(bloodInventory);
-
-        return "Blood donation recorded successfully.";
+    @Transactional(readOnly = true)
+    public List<BloodDonationDTO> getDonationsByDonor(UUID donorId) {
+        return donationRepository.findByDonorId(donorId).stream()
+                .map(donation -> modelMapper.map(donation, BloodDonationDTO.class))
+                .collect(Collectors.toList());
     }
-}
-*/
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BloodDonationDTO> getDonationsByBloodBank(UUID bloodBankId) {
+        return donationRepository.findByBloodBankId(bloodBankId).stream()
+                .map(donation -> modelMapper.map(donation, BloodDonationDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteDonation(UUID donationId) {
+        BloodDonation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new DonationNotFoundException(donationId));
+
+        if (donation.getBloodStock() != null) {
+            stockRepository.delete(donation.getBloodStock());
+        }
+
+        donationRepository.delete(donation);
+    }
+}*/

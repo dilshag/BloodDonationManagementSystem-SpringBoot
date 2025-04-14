@@ -102,6 +102,9 @@ public class DonorServiceImpl implements DonorService {
         return "Donor registered successfully.";
     }
 */
+
+
+
   /* public void registerDonor(DonorDTO donorDTO) {
        Optional<User> userOptional = userRepository.findById(donorDTO.getId());
 

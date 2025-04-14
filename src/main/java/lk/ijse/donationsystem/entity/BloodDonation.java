@@ -1,7 +1,6 @@
 package lk.ijse.donationsystem.entity;
 
 import jakarta.persistence.*;
-
 import lk.ijse.donationsystem.BloodType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BloodDonation {
+
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -41,13 +41,8 @@ public class BloodDonation {
 
     @Column(nullable = false)
     private LocalDate donationDate;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "blood_stock_id")
+    private BloodStock bloodStock;
 }
-/*
-*
-*
-* 0e7e7987-b418-43b5-aa21-b37885445b0d       d3
-*  d3a3ddee-24ed-4c5e-88ec-ef6c1bf1969cd4
-*  "id": "a8bd084e-9e6e-4391-8785-3ea1e0a781d1",
-        "name": "National Blood Center",
-        "location": "Colombo, Sri Lanka"
-* */

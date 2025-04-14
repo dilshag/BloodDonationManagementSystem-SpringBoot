@@ -1,28 +1,47 @@
+
+
+
+/*
 package lk.ijse.donationsystem.controller;
 
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
+import lk.ijse.donationsystem.repo.BloodBankRepository;
+import lk.ijse.donationsystem.repo.DonorRepository;
 import lk.ijse.donationsystem.service.BloodDonationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
-@RequestMapping("/api/v1/donations")
-@CrossOrigin(origins = "http://localhost:63342")
+@RequestMapping("/donations")
 public class BloodDonationController {
 
-    private final BloodDonationService bloodDonationService;
+    @Autowired
+    private BloodDonationService bloodDonationService;
 
-    public BloodDonationController(BloodDonationService bloodDonationService) {
-        this.bloodDonationService = bloodDonationService;
-    }
+    @Autowired
+    private DonorRepository donorRepository;
 
-    @PostMapping("/donate")
-    public ResponseEntity<String> donateBlood(@RequestBody BloodDonationDTO bloodDonationDTO) {
+    @Autowired
+    private BloodBankRepository bloodBankRepository;
+
+    @PostMapping
+    public ResponseEntity<BloodDonationDTO> makeDonation(@RequestBody BloodDonationDTO donationDTO) {
+        // Validate that donor and blood bank exist
+        if (!donorRepository.existsById(donationDTO.getDonorId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Donor not found
+        }
+        if (!bloodBankRepository.existsById(donationDTO.getBloodBankId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Blood bank not found
+        }
+
+        // Call the service layer to process the donation
         try {
-            String resultMessage = bloodDonationService.donateBlood(bloodDonationDTO);
-            return ResponseEntity.ok(resultMessage);
+            BloodDonationDTO savedDonationDTO = bloodDonationService.makeDonation(donationDTO);
+            return new ResponseEntity<>(savedDonationDTO, HttpStatus.CREATED); // Donation created successfully
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Server error
         }
     }
 }
+*/

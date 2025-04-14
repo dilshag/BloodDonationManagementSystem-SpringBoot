@@ -1,7 +1,29 @@
+/*
 package lk.ijse.donationsystem.service;
 
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
+import lk.ijse.donationsystem.exception.InvalidDonationException;
 
 public interface BloodDonationService {
-    String donateBlood(BloodDonationDTO bloodDonationDTO) throws Exception;
+    BloodDonationDTO makeDonation(BloodDonationDTO donationDTO) throws InvalidDonationException;
 }
+*//*
+
+
+
+
+
+
+
+package lk.ijse.donationsystem.service;
+
+import lk.ijse.donationsystem.dto.BloodDonationDTO;
+import java.util.List;
+import java.util.UUID;
+
+public interface BloodDonationService {
+    BloodDonationDTO recordDonation(BloodDonationDTO bloodDonationDTO);
+    List<BloodDonationDTO> getDonationsByDonor(UUID donorId);
+    List<BloodDonationDTO> getDonationsByBloodBank(UUID bloodBankId);
+    void deleteDonation(UUID donationId);
+}*/

@@ -42,22 +42,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
                 user.getEmail(), user.getPassword(), getAuthority(user));
     }
 
-   /* @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthority(user));
-    }*/
-
     public UserDTO loadUserDetailsByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
         return modelMapper.map(user, UserDTO.class);
     }
-
-  /*  public UserDTO loadUserDetailsByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
-        return modelMapper.map(user,UserDTO.class);
-    }*/
 
     private Set<SimpleGrantedAuthority> getAuthority(User user) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
@@ -72,16 +61,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
                 .orElse(null); // Return null if user not found
     }
 
-
-   /* @Override
-    public UserDTO searchUser(String username) {
-        if (userRepository.existsByEmail(username)) {
-            User user=userRepository.findByEmail(username);
-            return modelMapper.map(user,UserDTO.class);
-        } else {
-            return null;
-        }
-    }*/
 
     @Override
     public int saveUser(UserDTO userDTO) {
@@ -101,13 +80,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
     }
 
-/*@Override
-    public List<UserDTO> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(user -> modelMapper.map(user, UserDTO.class))
-                .collect(Collectors.toList());
-    }*/
 @Override
 public List<UserDTO> getAllUsers() {
     List<User> users = userRepository.findAll();
@@ -126,19 +98,6 @@ public List<UserDTO> getAllUsers() {
         return false;
     }
 
-/*
-
-@Override
-    public boolean deleteUser(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            userRepository.delete(user);
-            return true;
-        }
-        return false;
-    }
-
-*/
 
     @Override
     public void updateUserStatus(String email, UserStatus status) {
@@ -153,16 +112,6 @@ public List<UserDTO> getAllUsers() {
         }
     }
 
-
-  /*  @Override
-    public void updateUserStatus(String email, boolean enabled) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
-            userRepository.updateUserStatus(email, enabled);
-        } else {
-            throw new RuntimeException("User not found!");
-        }
-    }*/
 
 
     public boolean isDonorRegistered(String email) {

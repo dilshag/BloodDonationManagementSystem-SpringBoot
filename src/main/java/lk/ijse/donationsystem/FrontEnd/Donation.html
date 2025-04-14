@@ -1,0 +1,586 @@
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            &#45;&#45;primary-color: #d32f2f;
+            &#45;&#45;secondary-color: #f5f5f5;
+            &#45;&#45;accent-color: #ffcdd2;
+            &#45;&#45;text-color: #333;
+            &#45;&#45;card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(&#45;&#45;text-color);
+        }
+
+        .navbar {
+            background-color: var(&#45;&#45;primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sidebar {
+            background-color: white;
+            min-height: calc(100vh - 56px);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .donation-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #6c757d;
+        }
+
+        .search-box input {
+            padding-left: 35px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+&lt;!&ndash; Navbar &ndash;&gt;
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-hospital me-2"></i>Blood Donation System
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        &lt;!&ndash; Sidebar &ndash;&gt;
+        <div class="col-md-2 sidebar p-0">
+            <div class="list-group list-group-flush">
+                <a href="admin_dashboard.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="user_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>User Management
+                </a>
+                <a href="blood_bank_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-hospital me-2"></i>Blood Banks
+                </a>
+                <a href="inventory_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-warehouse me-2"></i>Inventory
+                </a>
+                <a href="donation_management.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tint me-2"></i>Donations
+                </a>
+            </div>
+        </div>
+
+        &lt;!&ndash; Main Content &ndash;&gt;
+        <div class="col-md-10 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-tint me-2"></i>Donation Management</h2>
+                <div>
+                    <button class="btn btn-primary me-2" id="refreshDonationsBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDonationModal">
+                        <i class="fas fa-plus me-1"></i>Add Donation
+                    </button>
+                </div>
+            </div>
+
+            &lt;!&ndash; Filter and Search &ndash;&gt;
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchDonationInput" placeholder="Search donations...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="filterAllDonations">All</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterCompleted">Completed</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterPending">Pending</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterCancelled">Cancelled</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            &lt;!&ndash; Donations Table &ndash;&gt;
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Donations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="donationsTable">
+                            <thead>
+                            <tr>
+                                <th>Donor</th>
+                                <th>Blood Bank</th>
+                                <th>Blood Type</th>
+                                <th>Quantity</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="donationsTableBody">
+                            &lt;!&ndash; Donations data will be loaded here &ndash;&gt;
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+&lt;!&ndash; Add Donation Modal &ndash;&gt;
+<div class="modal fade" id="addDonationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addDonationForm">
+                    <div class="mb-3">
+                        <label for="donorSelect" class="form-label">Donor</label>
+                        <select class="form-select" id="donorSelect" required>
+                            &lt;!&ndash; Donors will be loaded here &ndash;&gt;
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodBankDonationSelect" class="form-label">Blood Bank</label>
+                        <select class="form-select" id="bloodBankDonationSelect" required>
+                            &lt;!&ndash; Blood banks will be loaded here &ndash;&gt;
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationBloodTypeSelect" class="form-label">Blood Type</label>
+                        <select class="form-select" id="donationBloodTypeSelect" required>
+                            <option value="A_POSITIVE">A+</option>
+                            <option value="A_NEGATIVE">A-</option>
+                            <option value="B_POSITIVE">B+</option>
+                            <option value="B_NEGATIVE">B-</option>
+                            <option value="AB_POSITIVE">AB+</option>
+                            <option value="AB_NEGATIVE">AB-</option>
+                            <option value="O_POSITIVE">O+</option>
+                            <option value="O_NEGATIVE">O-</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationQuantityInput" class="form-label">Quantity (ml)</label>
+                        <input type="number" class="form-control" id="donationQuantityInput" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationDateInput" class="form-label">Donation Date</label>
+                        <input type="date" class="form-control" id="donationDateInput" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationStatusSelect" class="form-label">Status</label>
+                        <select class="form-select" id="donationStatusSelect" required>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveDonationBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+&lt;!&ndash; Bootstrap JS &ndash;&gt;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        const authToken = localStorage.getItem('authToken');
+
+        if (!authToken) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Load donations data
+        loadDonationsData();
+        loadDonorsForSelect();
+        loadBloodBanksForDonationSelect();
+
+        // Add Donation
+        $('#saveDonationBtn').click(function() {
+            const donorId = $('#donorSelect').val();
+            const bloodBankId = $('#bloodBankDonationSelect').val();
+            const bloodType = $('#donationBloodTypeSelect').val();
+            const quantity = $('#donationQuantityInput').val();
+            const donationDate = $('#donationDateInput').val();
+            const status = $('#donationStatusSelect').val();
+
+            if (!donorId || !bloodBankId || !bloodType || !quantity || !donationDate || !status) {
+                Swal.fire('Error!', 'Please fill all fields', 'error');
+                return;
+            }
+
+            const donationData = {
+                donorId: donorId,
+                bloodBankId: bloodBankId,
+                bloodType: bloodType,
+                quantity: quantity,
+                donationDate: donationDate,
+                status: status
+            };
+
+            $.ajax({
+                url: 'http://localhost:8080/api/donations/add',
+                type: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                data: JSON.stringify(donationData),
+                success: function(response) {
+                    $('#addDonationModal').modal('hide');
+                    Swal.fire('Success!', 'Donation added successfully', 'success');
+                    loadDonationsData();
+                    $('#addDonationForm')[0].reset();
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', xhr.responseJSON?.message || 'Failed to add donation', 'error');
+                }
+            });
+        });
+
+        // Refresh button
+        $('#refreshDonationsBtn').click(function() {
+            loadDonationsData();
+        });
+
+        // Filter buttons
+        $('#filterAllDonations').click(function() {
+            $('.donation-row').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterCompleted').click(function() {
+            $('.donation-row').hide();
+            $('.status-completed').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterPending').click(function() {
+            $('.donation-row').hide();
+            $('.status-pending').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterCancelled').click(function() {
+            $('.donation-row').hide();
+            $('.status-cancelled').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        // Search functionality
+        $('#searchDonationInput').keyup(function() {
+            const searchText = $(this).val().toLowerCase();
+            if (searchText.length > 0) {
+                $('#donationsTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                });
+            } else {
+                $('.donation-row').show();
+            }
+        });
+
+        // Logout
+        $('#logoutBtn').click(function() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    });
+
+    function loadDonationsData() {
+        $.ajax({
+            url: 'http://localhost:8080/api/donations/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            success: function(response) {
+                renderDonations(response);
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load donations data', 'error');
+            }
+        });
+    }
+
+    function loadDonorsForSelect() {
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/donors/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            success: function(response) {
+                const select = $('#donorSelect');
+                select.empty();
+                response.forEach(donor => {
+                    select.append(`<option value="${donor.id}">${donor.name} (${donor.bloodType})</option>`);
+                });
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load donors', 'error');
+            }
+        });
+    }
+
+    function loadBloodBanksForDonationSelect() {
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/bloodbanks/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            success: function(response) {
+                const select = $('#bloodBankDonationSelect');
+                select.empty();
+                response.forEach(bank => {
+                    select.append(`<option value="${bank.id}">${bank.name} - ${bank.location}</option>`);
+                });
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load blood banks', 'error');
+            }
+        });
+    }
+
+    function renderDonations(donations) {
+        const tableBody = $('#donationsTableBody');
+        tableBody.empty();
+
+        if (donations.length === 0) {
+            tableBody.append('<tr><td colspan="7" class="text-center">No donations found</td></tr>');
+            return;
+        }
+
+        donations.forEach(donation => {
+            const statusClass = getStatusClass(donation.status);
+
+            tableBody.append(`
+                    <tr class="donation-row">
+                        <td>${donation.donorName || 'N/A'}</td>
+                        <td>${donation.bloodBankName || 'N/A'}</td>
+                        <td>${formatBloodType(donation.bloodType)}</td>
+                        <td>${donation.quantity} ml</td>
+                        <td>${donation.donationDate ? new Date(donation.donationDate).toLocaleDateString() : 'N/A'}</td>
+                        <td><span class="donation-status ${statusClass}">${donation.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary action-btn" onclick="editDonation('${donation.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteDonation('${donation.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `);
+        });
+    }
+
+    function formatBloodType(bloodType) {
+        if (!bloodType) return 'N/A';
+        return bloodType.replace('_', '-');
+    }
+
+    function getStatusClass(status) {
+        if (status === 'COMPLETED') return 'status-completed';
+        if (status === 'PENDING') return 'status-pending';
+        if (status === 'CANCELLED') return 'status-cancelled';
+        return '';
+    }
+
+    function editDonation(donationId) {
+        // Implement edit functionality
+        Swal.fire('Info', 'Edit functionality will be implemented here', 'info');
+    }
+
+    function deleteDonation(donationId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `http://localhost:8080/api/donations/delete/${donationId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    success: function() {
+                        Swal.fire('Deleted!', 'Donation has been deleted.', 'success');
+                        loadDonationsData();
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error!', 'Failed to delete donation', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Blood Donation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h3>Record Blood Donation</h3>
+        </div>
+        <div class="card-body">
+            <form id="donationForm">
+                <div class="mb-3">
+                    <label for="donorId" class="form-label">Donor ID</label>
+                    <input type="text" class="form-control" id="donorId" required>
+                </div>
+                <div class="mb-3">
+                    <label for="bloodBank" class="form-label">Blood Bank</label>
+                    <select class="form-select" id="bloodBank" required>
+                        <option value="">Select Blood Bank</option>
+                        <!-- Options will be populated via JavaScript -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="donationDate" class="form-label">Donation Date</label>
+                    <input type="date" class="form-control" id="donationDate" required>
+                </div>
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity (ml)</label>
+                    <input type="number" class="form-control" id="quantity" min="300" max="500" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Record Donation</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Load blood banks
+    fetch('/api/v1/bloodbanks/active', {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('bloodBank');
+            data.forEach(bank => {
+                const option = document.createElement('option');
+                option.value = bank.id;
+                option.textContent = bank.name;
+                select.appendChild(option);
+            });
+        });
+
+    document.getElementById('donationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const donationData = {
+            donorId: document.getElementById('donorId').value,
+            bloodBankId: document.getElementById('bloodBank').value,
+            donationDate: document.getElementById('donationDate').value,
+            quantity: document.getElementById('quantity').value,
+            bloodType: document.getElementById('bloodType').value
+        };
+
+        fetch('/api/v1/donations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify(donationData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Donation Recorded Successfully!');
+                window.location.href = 'donation-list.html';
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>

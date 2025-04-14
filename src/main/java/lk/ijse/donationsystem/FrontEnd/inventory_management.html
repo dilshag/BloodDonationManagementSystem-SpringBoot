@@ -1,0 +1,658 @@
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            &#45;&#45;primary-color: #d32f2f;
+            &#45;&#45;secondary-color: #f5f5f5;
+            &#45;&#45;accent-color: #ffcdd2;
+            &#45;&#45;text-color: #333;
+            &#45;&#45;card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(&#45;&#45;text-color);
+        }
+
+        .navbar {
+            background-color: var(&#45;&#45;primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sidebar {
+            background-color: white;
+            min-height: calc(100vh - 56px);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-low {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .blood-type-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #6c757d;
+        }
+
+        .search-box input {
+            padding-left: 35px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+&lt;!&ndash; Navbar &ndash;&gt;
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-hospital me-2"></i>Blood Donation System
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        &lt;!&ndash; Sidebar &ndash;&gt;
+        <div class="col-md-2 sidebar p-0">
+            <div class="list-group list-group-flush">
+                <a href="admin_dashboard.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="user_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>User Management
+                </a>
+                <a href="blood_bank_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-hospital me-2"></i>Blood Banks
+                </a>
+                <a href="inventory_management.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-warehouse me-2"></i>Inventory
+                </a>
+                <a href="donation_management.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tint me-2"></i>Donations
+                </a>
+            </div>
+        </div>
+
+        &lt;!&ndash; Main Content &ndash;&gt;
+        <div class="col-md-10 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-warehouse me-2"></i>Blood Inventory Management</h2>
+                <div>
+                    <button class="btn btn-primary me-2" id="refreshInventoryBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStockModal">
+                        <i class="fas fa-plus me-1"></i>Add Stock
+                    </button>
+                </div>
+            </div>
+
+            &lt;!&ndash; Filter and Search &ndash;&gt;
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchInventoryInput" placeholder="Search inventory...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="filterAllInventory">All</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterAvailable">Available</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterLow">Low Stock</button>
+                            <button type="button" class="btn btn-outline-secondary" id="filterCritical">Critical</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            &lt;!&ndash; Inventory Table &ndash;&gt;
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Blood Inventory</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="inventoryTable">
+                            <thead>
+                            <tr>
+                                <th>Blood Bank</th>
+                                <th>Blood Type</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Expiry Date</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                            &lt;!&ndash; Inventory data will be loaded here &ndash;&gt;
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+&lt;!&ndash; Add Stock Modal &ndash;&gt;
+<div class="modal fade" id="addStockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Blood Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStockForm">
+                    <div class="mb-3">
+                        <label for="bloodBankSelect" class="form-label">Blood Bank</label>
+                        <select class="form-select" id="bloodBankSelect" required>
+                            &lt;!&ndash; Blood banks will be loaded here &ndash;&gt;
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodTypeSelect" class="form-label">Blood Type</label>
+                        <select class="form-select" id="bloodTypeSelect" required>
+                            <option value="A_POSITIVE">A+</option>
+                            <option value="A_NEGATIVE">A-</option>
+                            <option value="B_POSITIVE">B+</option>
+                            <option value="B_NEGATIVE">B-</option>
+                            <option value="AB_POSITIVE">AB+</option>
+                            <option value="AB_NEGATIVE">AB-</option>
+                            <option value="O_POSITIVE">O+</option>
+                            <option value="O_NEGATIVE">O-</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantityInput" class="form-label">Quantity (ml)</label>
+                        <input type="number" class="form-control" id="quantityInput" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiryDateInput" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiryDateInput" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveStockBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+&lt;!&ndash; Bootstrap JS &ndash;&gt;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        const authToken = localStorage.getItem('authToken');
+
+        if (!authToken) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Load inventory data
+        loadInventoryData();
+        loadBloodBanksForSelect();
+
+        // Add Stock
+        $('#saveStockBtn').click(function() {
+            const bloodBankId = $('#bloodBankSelect').val();
+            const bloodType = $('#bloodTypeSelect').val();
+            const quantity = $('#quantityInput').val();
+            const expiryDate = $('#expiryDateInput').val();
+
+            if (!bloodBankId || !bloodType || !quantity || !expiryDate) {
+                Swal.fire('Error!', 'Please fill all fields', 'error');
+                return;
+            }
+
+            const stockData = {
+                bloodStockList: [{
+                    bloodType: bloodType,
+                    quantity: quantity,
+                    expiryDate: expiryDate
+                }]
+            };
+
+            $.ajax({
+                url: `http://localhost:8080/api/blood-inventory/add-stock/${bloodBankId}`,
+                type: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                data: JSON.stringify(stockData),
+                success: function(response) {
+                    $('#addStockModal').modal('hide');
+                    Swal.fire('Success!', 'Blood stock added successfully', 'success');
+                    loadInventoryData();
+                    $('#addStockForm')[0].reset();
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', xhr.responseJSON?.message || 'Failed to add blood stock', 'error');
+                }
+            });
+        });
+
+        // Refresh button
+        $('#refreshInventoryBtn').click(function() {
+            loadInventoryData();
+        });
+
+        // Filter buttons
+        $('#filterAllInventory').click(function() {
+            $('.inventory-row').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterAvailable').click(function() {
+            $('.inventory-row').hide();
+            $('.status-available').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterLow').click(function() {
+            $('.inventory-row').hide();
+            $('.status-low').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterCritical').click(function() {
+            $('.inventory-row').hide();
+            $('.status-critical').closest('tr').show();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        // Search functionality
+        $('#searchInventoryInput').keyup(function() {
+            const searchText = $(this).val().toLowerCase();
+            if (searchText.length > 0) {
+                $('#inventoryTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                });
+            } else {
+                $('.inventory-row').show();
+            }
+        });
+
+        // Logout
+        $('#logoutBtn').click(function() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    });
+
+    function loadInventoryData() {
+        $.ajax({
+            url: 'http://localhost:8080/api/blood-inventory/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            success: function(response) {
+                renderInventory(response);
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load inventory data', 'error');
+            }
+        });
+    }
+
+    function loadBloodBanksForSelect() {
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/bloodbanks/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            success: function(response) {
+                const select = $('#bloodBankSelect');
+                select.empty();
+                response.forEach(bank => {
+                    select.append(`<option value="${bank.id}">${bank.name} - ${bank.location}</option>`);
+                });
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load blood banks', 'error');
+            }
+        });
+    }
+
+    function renderInventory(inventoryList) {
+        const tableBody = $('#inventoryTableBody');
+        tableBody.empty();
+
+        if (inventoryList.length === 0) {
+            tableBody.append('<tr><td colspan="6" class="text-center">No inventory data found</td></tr>');
+            return;
+        }
+
+        inventoryList.forEach(inventory => {
+            if (inventory.bloodStockList && inventory.bloodStockList.length > 0) {
+                inventory.bloodStockList.forEach(stock => {
+                    const statusClass = getStatusClass(stock.quantity);
+                    const statusText = getStatusText(stock.quantity);
+
+                    tableBody.append(`
+                            <tr class="inventory-row">
+                                <td>${inventory.bloodBankId ? inventory.bloodBankId : 'N/A'}</td>
+                                <td><span class="blood-type-badge">${formatBloodType(stock.bloodType)}</span></td>
+                                <td>${stock.quantity} ml</td>
+                                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                <td>${stock.expiryDate ? new Date(stock.expiryDate).toLocaleDateString() : 'N/A'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteStock('${inventory.id}', '${stock.id}')">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                });
+            } else {
+                tableBody.append(`
+                        <tr>
+                            <td colspan="6" class="text-center">No stock available for this inventory</td>
+                        </tr>
+                    `);
+            }
+        });
+    }
+
+    function formatBloodType(bloodType) {
+        return bloodType.replace('_', '-');
+    }
+
+    function getStatusClass(quantity) {
+        if (quantity >= 1000) return 'status-available';
+        if (quantity >= 500) return 'status-low';
+        return 'status-critical';
+    }
+
+    function getStatusText(quantity) {
+        if (quantity >= 1000) return 'Available';
+        if (quantity >= 500) return 'Low Stock';
+        return 'Critical';
+    }
+
+    function deleteStock(inventoryId, stockId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `http://localhost:8080/api/blood-inventory/remove-stock/${inventoryId}/${stockId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    success: function() {
+                        Swal.fire('Deleted!', 'Blood stock has been removed.', 'success');
+                        loadInventoryData();
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error!', 'Failed to remove blood stock', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h3>Blood Inventory Management</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Add New Stock</h5>
+                <form id="addStockForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="inventoryBloodBank" class="form-label">Blood Bank</label>
+                            <select class="form-select" id="inventoryBloodBank" required>
+                                <option value="">Select Blood Bank</option>
+                                <!-- Options will be populated via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="stockBloodType" class="form-label">Blood Type</label>
+                            <select class="form-select" id="stockBloodType" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A_POSITIVE">A+</option>
+                                <option value="A_NEGATIVE">A-</option>
+                                <option value="B_POSITIVE">B+</option>
+                                <option value="B_NEGATIVE">B-</option>
+                                <option value="AB_POSITIVE">AB+</option>
+                                <option value="AB_NEGATIVE">AB-</option>
+                                <option value="O_POSITIVE">O+</option>
+                                <option value="O_NEGATIVE">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="stockQuantity" class="form-label">Quantity (ml)</label>
+                            <input type="number" class="form-control" id="stockQuantity" min="1" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Add to Inventory</button>
+                </form>
+            </div>
+
+            <hr>
+
+            <div class="mt-4">
+                <h5>Current Inventory</h5>
+                <table id="inventoryTable" class="table table-striped" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Blood Type</th>
+                        <th>Quantity (ml)</th>
+                        <th>Expiry Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Data will be populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    // Initialize DataTable
+    $(document).ready(function() {
+        $('#inventoryTable').DataTable();
+    });
+
+    // Load blood banks
+    fetch('/api/v1/bloodbanks/active', {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('inventoryBloodBank');
+            data.forEach(bank => {
+                const option = document.createElement('option');
+                option.value = bank.id;
+                option.textContent = bank.name;
+                select.appendChild(option);
+            });
+
+            // Load inventory for first bank by default
+            if(data.length > 0) {
+                loadInventory(data[0].id);
+            }
+        });
+
+    // Load inventory when blood bank changes
+    document.getElementById('inventoryBloodBank').addEventListener('change', function() {
+        loadInventory(this.value);
+    });
+
+    function loadInventory(bloodBankId) {
+        fetch(`/api/v1/inventory/bloodbank/${bloodBankId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#inventoryTable tbody');
+                tbody.innerHTML = '';
+
+                data.stocks.forEach(stock => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${stock.bloodType.replace('_', ' ')}</td>
+                        <td>${stock.quantity}</td>
+                        <td>${new Date(stock.expiryDate).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeStock('${stock.id}')">Remove</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+    }
+
+    function removeStock(stockId) {
+        if(confirm('Are you sure you want to remove this stock?')) {
+            fetch(`/api/v1/inventory/remove-stock/${stockId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+                .then(response => {
+                    if(response.ok) {
+                        const bloodBankId = document.getElementById('inventoryBloodBank').value;
+                        loadInventory(bloodBankId);
+                        alert('Stock removed successfully!');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    document.getElementById('addStockForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const stockData = {
+            inventoryId: document.getElementById('inventoryBloodBank').value,
+            bloodType: document.getElementById('stockBloodType').value,
+            quantity: document.getElementById('stockQuantity').value
+        };
+
+        fetch('/api/v1/inventory/add-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify(stockData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Stock added successfully!');
+                const bloodBankId = document.getElementById('inventoryBloodBank').value;
+                loadInventory(bloodBankId);
+                this.reset();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>

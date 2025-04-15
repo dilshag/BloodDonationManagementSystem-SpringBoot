@@ -25,3 +25,4 @@ public class DonorDTO {
     private String profilePictureUrl;
 
 }
+

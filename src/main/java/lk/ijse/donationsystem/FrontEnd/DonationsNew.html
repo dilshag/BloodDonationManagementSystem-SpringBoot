@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blood Donations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f9f9f9;
+        }
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .filters select, .filters button {
+            padding: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e3e3e3;
+        }
+        .stock-details {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<h2>Blood Donation Records</h2>
+<div class="filters">
+    <select id="donorFilter">
+        <option value="">All Donors</option>
+    </select>
+    <select id="bankFilter">
+        <option value="">All Blood Banks</option>
+    </select>
+    <select id="typeFilter">
+        <option value="">All Blood Types</option>
+        <option value="A_POSITIVE">A+</option>
+        <option value="A_NEGATIVE">A-</option>
+        <option value="B_POSITIVE">B+</option>
+        <option value="B_NEGATIVE">B-</option>
+        <option value="AB_POSITIVE">AB+</option>
+        <option value="AB_NEGATIVE">AB-</option>
+        <option value="O_POSITIVE">O+</option>
+        <option value="O_NEGATIVE">O-</option>
+    </select>
+    <select id="sortOrder">
+        <option value="dateDesc">Date ↓</option>
+        <option value="dateAsc">Date ↑</option>
+    </select>
+    <button onclick="loadDonations()">Search</button>
+</div>
+
+<table id="donationTable">
+    <thead>
+    <tr>
+        <th>Donor</th>
+        <th>Blood Bank</th>
+        <th>Blood Type</th>
+        <th>Quantity (ml)</th>
+        <th>Donation Date</th>
+        <th>Blood Stock Info</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Data rows will go here -->
+    </tbody>
+</table>
+
+
+<!-- Add this inside your HTML, maybe below the filters -->
+<h2>Create a Blood Donation</h2>
+<form id="createDonationForm">
+    <label for="donorId">Donor ID:</label>
+    <input type="text" id="donorId" name="donorId" required><br>
+
+    <label for="bloodBankId">Blood Bank ID:</label>
+    <input type="text" id="bloodBankId" name="bloodBankId" required><br>
+
+    <label for="bloodType">Blood Type:</label>
+    <select id="bloodType" name="bloodType" required>
+        <option value="">Select</option>
+        <option value="A_POSITIVE">A+</option>
+        <option value="A_NEGATIVE">A-</option>
+        <option value="B_POSITIVE">B+</option>
+        <option value="B_NEGATIVE">B-</option>
+        <option value="AB_POSITIVE">AB+</option>
+        <option value="AB_NEGATIVE">AB-</option>
+        <option value="O_POSITIVE">O+</option>
+        <option value="O_NEGATIVE">O-</option>
+    </select><br>
+
+    <label for="quantity">Quantity (ml):</label>
+    <input type="number" id="quantity" name="quantity" required><br>
+
+    <label for="donatedDate">Donation Date:</label>
+    <input type="date" id="donatedDate" name="donatedDate" required><br>
+
+    <button type="submit">Submit Donation</button>
+</form>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function loadFilters() {
+        // Load donors and blood banks
+        $.get("/api/users/donors", function(donors) {
+            donors.forEach(d => {
+                $('#donorFilter').append(`<option value="${d.id}">${d.name}</option>`);
+            });
+        });
+
+        $.get("/api/bloodbanks", function(banks) {
+            banks.forEach(b => {
+                $('#bankFilter').append(`<option value="${b.id}">${b.name}</option>`);
+            });
+        });
+    }
+
+    function loadDonations() {
+        const donorId = $('#donorFilter').val();
+        const bloodBankId = $('#bankFilter').val();
+        const bloodType = $('#typeFilter').val();
+        const sort = $('#sortOrder').val();
+
+        let url = `/api/donations?`;
+        if (donorId) url += `donorId=${donorId}&`;
+        if (bloodBankId) url += `bloodBankId=${bloodBankId}&`;
+        if (bloodType) url += `bloodType=${bloodType}&`;
+        if (sort) url += `sort=${sort}`;
+
+        $.get(url, function(data) {
+            const tbody = $('#donationTable tbody');
+            tbody.empty();
+
+            data.forEach(d => {
+                tbody.append(`
+                    <tr>
+                        <td>${d.donorName || d.donorId}</td>
+                        <td>${d.bloodBankName || d.bloodBankId}</td>
+                        <td>${d.bloodType}</td>
+                        <td>${d.quantity}</td>
+                        <td>${d.donationDate}</td>
+                        <td class="stock-details">
+                            Quantity: ${d.stock?.quantity || 'N/A'}<br>
+                            Expiry: ${d.stock?.expiryDate || 'N/A'}
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+    }
+
+    // Load filters and donations on page load
+    $(document).ready(function() {
+        loadFilters();
+        loadDonations();
+    });
+
+    <!-- JS to handle the form -->
+
+    document.getElementById("createDonationForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const dto = {
+            donorId: document.getElementById("donorId").value,
+            bloodBankId: document.getElementById("bloodBankId").value,
+            quantity: parseInt(document.getElementById("quantity").value),
+            donatedDate: document.getElementById("donatedDate").value,
+            bloodType: document.getElementById("bloodType").value
+        };
+
+        fetch("/api/donations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dto)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Donation created successfully!");
+                    document.getElementById("createDonationForm").reset();
+                } else {
+                    alert("Failed to create donation.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while creating the donation.");
+            });
+    });
+</script>
+</body>
+</html>

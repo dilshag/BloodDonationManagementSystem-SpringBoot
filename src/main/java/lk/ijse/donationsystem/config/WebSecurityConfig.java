@@ -78,9 +78,11 @@ public class WebSecurityConfig {
                                 "/swagger-ui/**",
                                 "/uploads/**",
                                 "/swagger-ui.html").permitAll()
-                       // .requestMatchers("/api/v1/donor/disable/**", "/api/v1/donor/activate/**").hasAuthority("ADMIN") // Ensure this path is accessible only by admin
+                        .requestMatchers("/api/v1/donor/disable/**", "/api/v1/donor/activate/**").hasAuthority("ADMIN") // Ensure this path is accessible only by admin
                         .requestMatchers("/api/v1/user/getAll", "/api/v1/user/delete/**").hasAuthority("ADMIN") // Admin only
-                        .requestMatchers("/api/v1/donor/**").hasAuthority("DONOR") // Donor only
+                      //  .requestMatchers("/api/v1/donor/**").hasAuthority("DONOR") // Donor only
+                        .requestMatchers("/api/v1/donor/**").hasAnyAuthority("DONOR","ADMIN") // Donor only
+                        .requestMatchers("/api/v1/recipients/**").hasAuthority("RECIPIENT") // ✅ Add this line
 
                         .anyRequest().authenticated()
                 )

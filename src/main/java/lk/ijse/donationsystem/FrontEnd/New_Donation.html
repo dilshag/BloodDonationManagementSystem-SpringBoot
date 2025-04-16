@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+<!--
+    <link rel="stylesheet" href="css/style.css">
+-->
+</head>
+<style>
+    body {
+        background-color: #f8f9fa;
+        padding-bottom: 60px;
+    }
+
+    .navbar {
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    }
+
+    .table th {
+        font-weight: 600;
+    }
+
+    #donations-table tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    #donations-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .toast {
+        border-radius: 8px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-primary:hover {
+        background-color: #bb2d3b;
+        border-color: #b02a37;
+    }
+
+    .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .invalid-feedback {
+        display: none;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-select:invalid ~ .invalid-feedback {
+        display: block;
+    }
+</style>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-heartbeat me-2"></i>Blood Donation System
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" id="nav-donations">Donations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="nav-add-donation">Add Donation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Donations List Section -->
+    <div id="donations-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tint me-2"></i>Blood Donations</h2>
+            <button class="btn btn-primary" id="filter-btn">
+                <i class="fas fa-filter me-1"></i>Filter
+            </button>
+        </div>
+
+        <!-- Filter Form (Initially Hidden) -->
+        <div class="card mb-4 d-none" id="filter-form">
+            <div class="card-body">
+                <form id="donation-filter-form">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="filter-donor" class="form-label">Donor ID</label>
+                            <input type="text" class="form-control" id="filter-donor" placeholder="Enter donor ID">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filter-bank" class="form-label">Blood Bank ID</label>
+                            <input type="text" class="form-control" id="filter-bank" placeholder="Enter blood bank ID">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filter-blood-type" class="form-label">Blood Type</label>
+                            <select class="form-select" id="filter-blood-type">
+                                <option value="">All Types</option>
+                                <option value="A_POSITIVE">A+</option>
+                                <option value="A_NEGATIVE">A-</option>
+                                <option value="B_POSITIVE">B+</option>
+                                <option value="B_NEGATIVE">B-</option>
+                                <option value="AB_POSITIVE">AB+</option>
+                                <option value="AB_NEGATIVE">AB-</option>
+                                <option value="O_POSITIVE">O+</option>
+                                <option value="O_NEGATIVE">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filter-sort" class="form-label">Sort By Date</label>
+                            <select class="form-select" id="filter-sort">
+                                <option value="desc">Newest First</option>
+                                <option value="asc">Oldest First</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Apply Filters
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary" id="reset-filters">
+                                <i class="fas fa-undo me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Donations Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="donations-table">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Donor ID</th>
+                    <th>Blood Bank ID</th>
+                    <th>Blood Type</th>
+                    <th>Quantity (ml)</th>
+                    <th>Donation Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Data will be loaded via AJAX -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Donation Section (Initially Hidden) -->
+    <div id="add-donation-section" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-plus-circle me-2"></i>Add New Donation</h2>
+            <button class="btn btn-outline-secondary" id="back-to-list">
+                <i class="fas fa-arrow-left me-1"></i>Back to List
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="add-donation-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="donor-id" class="form-label">Donor ID</label>
+                            <input type="text" class="form-control" id="donor-id" required>
+                            <div class="invalid-feedback">Please provide a donor ID.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="blood-bank-id" class="form-label">Blood Bank ID</label>
+                            <input type="text" class="form-control" id="blood-bank-id" required>
+                            <div class="invalid-feedback">Please provide a blood bank ID.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">Quantity (ml)</label>
+                            <input type="number" class="form-control" id="quantity" min="50" max="500" required>
+                            <div class="invalid-feedback">Please provide a valid quantity (50-500ml).</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="donation-date" class="form-label">Donation Date</label>
+                            <input type="date" class="form-control" id="donation-date" required>
+                            <div class="invalid-feedback">Please select a donation date.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="blood-type" class="form-label">Blood Type</label>
+                            <select class="form-select" id="blood-type" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A_POSITIVE">A+</option>
+                                <option value="A_NEGATIVE">A-</option>
+                                <option value="B_POSITIVE">B+</option>
+                                <option value="B_NEGATIVE">B-</option>
+                                <option value="AB_POSITIVE">AB+</option>
+                                <option value="AB_NEGATIVE">AB-</option>
+                                <option value="O_POSITIVE">O+</option>
+                                <option value="O_NEGATIVE">O-</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a blood type.</div>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Save Donation
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="toast" class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toast-message"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<!--
+<script src="js/jquery.js"></script>
+-->
+
+<!--<script>
+    $(document).ready(function () {
+        let allDonations = [];
+
+        // Fetch all donations on page load
+        function fetchDonations() {
+            $.ajax({
+                url: 'http://localhost:8080/api/donations', // Replace with your actual endpoint
+                type: 'GET',
+                success: function (data) {
+                    allDonations = data;
+                    renderDonations(allDonations);
+                    populateFilters(allDonations);
+                },
+                error: function (err) {
+                    console.error("Failed to fetch donations:", err);
+                }
+            });
+        }
+
+        // Render donations in the table
+        function renderDonations(donations) {
+            const tbody = $('#donationTableBody');
+            tbody.empty();
+
+            if (donations.length === 0) {
+                tbody.append('<tr><td colspan="6">No donations found</td></tr>');
+                return;
+            }
+
+            donations.forEach(donation => {
+                const row = `
+                <tr>
+                    <td>${donation.id}</td>
+                        <td>${donation.donorId}</td>
+                        <td>${donation.bloodBankId}</td>
+                        <td>${bloodTypeText}</td>
+                        <td>${donation.quantity}</td>
+                         <td>${new Date(donation.date).toLocaleDateString()}</td>
+                </tr>
+            `;
+                tbody.append(row);
+            });
+        }
+
+        // Populate filters based on fetched data
+        function populateFilters(donations) {
+            const donorSet = new Set();
+            const bankSet = new Set();
+            const bloodTypeSet = new Set();
+
+            donations.forEach(d => {
+                donorSet.add(d.donorName);
+                bankSet.add(d.bloodBankName);
+                bloodTypeSet.add(d.bloodType);
+            });
+
+            $('#donorFilter').html(`<option value="">All Donors</option>`);
+            donorSet.forEach(d => $('#donorFilter').append(`<option value="${d}">${d}</option>`));
+
+            $('#bloodBankFilter').html(`<option value="">All Blood Banks</option>`);
+            bankSet.forEach(b => $('#bloodBankFilter').append(`<option value="${b}">${b}</option>`));
+
+            $('#bloodTypeFilter').html(`<option value="">All Blood Types</option>`);
+            bloodTypeSet.forEach(t => $('#bloodTypeFilter').append(`<option value="${t}">${t}</option>`));
+        }
+
+        // Filter + Sort logic
+        function applyFiltersAndSort() {
+            let filtered = [...allDonations];
+
+            const selectedDonor = $('#donorFilter').val();
+            const selectedBank = $('#bloodBankFilter').val();
+            const selectedType = $('#bloodTypeFilter').val();
+            const sortDirection = $('#sortDate').val(); // "asc" or "desc"
+
+            if (selectedDonor) {
+                filtered = filtered.filter(d => d.donorName === selectedDonor);
+            }
+            if (selectedBank) {
+                filtered = filtered.filter(d => d.bloodBankName === selectedBank);
+            }
+            if (selectedType) {
+                filtered = filtered.filter(d => d.bloodType === selectedType);
+            }
+
+            if (sortDirection === 'asc') {
+                filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (sortDirection === 'desc') {
+                filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            renderDonations(filtered);
+        }
+
+        // Bind filter/sort events
+        $('#donorFilter, #bloodBankFilter, #bloodTypeFilter, #sortDate').on('change', applyFiltersAndSort);
+
+        // Initial fetch
+        fetchDonations();
+    });
+</script>-->
+
+
+<script>$(document).ready(function() {
+    // Initialize toast
+    const toast = new bootstrap.Toast(document.getElementById('toast'));
+
+    // Load initial donations data
+    loadDonations();
+
+    // Navigation between sections
+    $('#nav-donations').click(function(e) {
+        e.preventDefault();
+        showDonationsSection();
+    });
+
+    $('#nav-add-donation').click(function(e) {
+        e.preventDefault();
+        showAddDonationSection();
+    });
+
+    $('#back-to-list').click(function(e) {
+        e.preventDefault();
+        showDonationsSection();
+    });
+
+    // Toggle filter form
+    $('#filter-btn').click(function() {
+        $('#filter-form').toggleClass('d-none');
+    });
+
+    // Reset filters
+    $('#reset-filters').click(function() {
+        $('#donation-filter-form')[0].reset();
+        loadDonations();
+    });
+
+    // Apply filters
+    $('#donation-filter-form').submit(function(e) {
+        e.preventDefault();
+        loadDonations();
+        $('#filter-form').addClass('d-none');
+    });
+
+    // Handle add donation form submission
+
+    $('#add-donation-form').submit(function(e) {
+        e.preventDefault();
+
+        const form = this;
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const donationData = {
+            donorId: $('#donor-id').val(),
+            bloodBankId: $('#blood-bank-id').val(),
+            quantity: $('#quantity').val(),
+            donatedDate: $('#donation-date').val(),
+            bloodType: $('#blood-type').val()
+        };
+
+        $.ajax({
+            url: '/api/donations',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'Accept': 'application/json'
+            },
+            data: JSON.stringify(donationData),
+            success: function(response) {
+                showToast('Donation added successfully!');
+                form.reset();
+                form.classList.remove('was-validated');
+                showDonationsSection();
+                loadDonations();
+            },
+            error: function(xhr) {
+                showToast('Error: ' + (xhr.responseJSON?.message || 'Failed to add donation'), 'danger');
+            }
+        });
+    });
+    /*$('#add-donation-form').submit(function(e) {
+        e.preventDefault();
+
+        const form = this;
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const donationData = {
+            donorId: $('#donor-id').val(),
+            bloodBankId: $('#blood-bank-id').val(),
+            quantity: $('#quantity').val(),
+            donatedDate: $('#donation-date').val(),
+            bloodType: $('#blood-type').val()
+        };
+
+        $.ajax({
+            url: 'http://localhost:8080/api/donations',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(donationData),
+            success: function(response) {
+                showToast('Donation added successfully!');
+                form.reset();
+                form.classList.remove('was-validated');
+                showDonationsSection();
+                loadDonations();
+            },
+            error: function(xhr) {
+                showToast('Error: ' + (xhr.responseJSON?.message || 'Failed to add donation'), 'danger');
+            }
+        });
+    });*/
+    function loadDonations() {
+        const donorId = $('#filter-donor').val();
+        const bloodBankId = $('#filter-bank').val();
+        const bloodType = $('#filter-blood-type').val();
+        const sort = $('#filter-sort').val();
+
+        let url = '/api/donations/filter?sort=' + sort;
+        if (donorId) url += '&donorId=' + donorId;
+        if (bloodBankId) url += '&bloodBankId=' + bloodBankId;
+        if (bloodType) url += '&bloodType=' + bloodType;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            success: function(data) {
+                const tbody = $('#donations-table tbody');
+                tbody.empty();
+
+                if (data.length === 0) {
+                    tbody.append('<tr><td colspan="6" class="text-center py-4">No donations found</td></tr>');
+                    return;
+                }
+
+                data.forEach(donation => {
+                    const bloodTypeText = formatBloodType(donation.bloodType);
+                    const row = `
+                    <tr>
+                        <td>${donation.id}</td>
+                        <td>${donation.donorId}</td>
+                        <td>${donation.bloodBankId}</td>
+                        <td>${bloodTypeText}</td>
+                        <td>${donation.quantity}</td>
+                        <td>${new Date(donation.donationDate).toLocaleDateString()}</td>
+                    </tr>
+                `;
+                    tbody.append(row);
+                });
+            },
+            error: function(xhr) {
+                showToast('Error loading donations: ' + (xhr.responseJSON?.message || 'Server error'), 'danger');
+            }
+        });
+    }
+    // Function to load donations with optional filters
+   /* function loadDonations() {
+        const donorId = $('#filter-donor').val();
+        const bloodBankId = $('#filter-bank').val();
+        const bloodType = $('#filter-blood-type').val();
+        const sort = $('#filter-sort').val();
+
+        let url = 'http://localhost:8080/api/donations/filter?sort=' + sort;
+        if (donorId) url += '&donorId=' + donorId;
+        if (bloodBankId) url += '&bloodBankId=' + bloodBankId;
+        if (bloodType) url += '&bloodType=' + bloodType;
+
+        $.get(url, function(data) {
+            const tbody = $('#donations-table tbody');
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="6" class="text-center py-4">No donations found</td></tr>');
+                return;
+            }
+
+            data.forEach(donation => {
+                const bloodTypeText = formatBloodType(donation.bloodType);
+                const row = `
+                    <tr>
+                        <td>${donation.id}</td>
+                        <td>${donation.donorId}</td>
+                        <td>${donation.bloodBankId}</td>
+                        <td>${bloodTypeText}</td>
+                        <td>${donation.quantity}</td>
+                        <td>${new Date(donation.donationDate).toLocaleDateString()}</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }).fail(function(xhr) {
+            showToast('Error loading donations: ' + (xhr.responseJSON?.message || 'Server error'), 'danger');
+        });
+    }*/
+
+    // Helper function to format blood type for display
+    function formatBloodType(type) {
+        if (!type) return '';
+        const map = {
+            'A_POSITIVE': 'A+',
+            'A_NEGATIVE': 'A-',
+            'B_POSITIVE': 'B+',
+            'B_NEGATIVE': 'B-',
+            'AB_POSITIVE': 'AB+',
+            'AB_NEGATIVE': 'AB-',
+            'O_POSITIVE': 'O+',
+            'O_NEGATIVE': 'O-'
+        };
+        return map[type] || type;
+    }
+
+    // Helper function to show toast notifications
+    function showToast(message, type = 'success') {
+        const toastEl = $('#toast');
+        const toastMessage = $('#toast-message');
+
+        toastEl.removeClass('bg-success bg-danger');
+        toastEl.addClass(type === 'success' ? 'bg-success' : 'bg-danger');
+        toastMessage.text(message);
+
+        toast.show();
+    }
+
+    // Helper functions to show/hide sections
+    function showDonationsSection() {
+        $('#add-donation-section').addClass('d-none');
+        $('#donations-section').removeClass('d-none');
+        $('#nav-donations').addClass('active');
+        $('#nav-add-donation').removeClass('active');
+    }
+
+    function showAddDonationSection() {
+        $('#donations-section').addClass('d-none');
+        $('#add-donation-section').removeClass('d-none');
+        $('#nav-add-donation').addClass('active');
+        $('#nav-donations').removeClass('active');
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        $('#donation-date').val(today);
+    }
+});
+</script>
+</body>
+</html>

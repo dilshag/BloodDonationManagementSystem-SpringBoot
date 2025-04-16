@@ -1,4 +1,3 @@
-<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,21 +10,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            &#45;&#45;primary-color: #d32f2f;
-            &#45;&#45;secondary-color: #f5f5f5;
-            &#45;&#45;accent-color: #ffcdd2;
-            &#45;&#45;text-color: #333;
-            &#45;&#45;card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --primary-color: #d32f2f;
+            --secondary-color: #f5f5f5;
+            --accent-color: #ffcdd2;
+            --text-color: #333;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
-            color: var(&#45;&#45;text-color);
+            color: var(--text-color);
         }
 
         .navbar {
-            background-color: var(&#45;&#45;primary-color);
+            background-color: var(--primary-color);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -76,7 +75,7 @@
     </style>
 </head>
 <body>
-&lt;!&ndash; Navbar &ndash;&gt;
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
@@ -104,7 +103,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        &lt;!&ndash; Sidebar &ndash;&gt;
+        <!-- Sidebar -->
         <div class="col-md-2 sidebar p-0">
             <div class="list-group list-group-flush">
                 <a href="admin_dashboard.html" class="list-group-item list-group-item-action">
@@ -125,7 +124,7 @@
             </div>
         </div>
 
-        &lt;!&ndash; Main Content &ndash;&gt;
+        <!-- Main Content -->
         <div class="col-md-10 main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-tint me-2"></i>Donation Management</h2>
@@ -139,7 +138,7 @@
                 </div>
             </div>
 
-            &lt;!&ndash; Filter and Search &ndash;&gt;
+            <!-- Filter and Search -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="search-box">
@@ -159,7 +158,7 @@
                 </div>
             </div>
 
-            &lt;!&ndash; Donations Table &ndash;&gt;
+            <!-- Donations Table -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-list me-2"></i>Donations</h5>
@@ -179,7 +178,7 @@
                             </tr>
                             </thead>
                             <tbody id="donationsTableBody">
-                            &lt;!&ndash; Donations data will be loaded here &ndash;&gt;
+                            <!-- Donations data will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -189,7 +188,7 @@
     </div>
 </div>
 
-&lt;!&ndash; Add Donation Modal &ndash;&gt;
+<!-- Add Donation Modal -->
 <div class="modal fade" id="addDonationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -202,13 +201,13 @@
                     <div class="mb-3">
                         <label for="donorSelect" class="form-label">Donor</label>
                         <select class="form-select" id="donorSelect" required>
-                            &lt;!&ndash; Donors will be loaded here &ndash;&gt;
+                            <!-- Donors will be loaded here -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="bloodBankDonationSelect" class="form-label">Blood Bank</label>
                         <select class="form-select" id="bloodBankDonationSelect" required>
-                            &lt;!&ndash; Blood banks will be loaded here &ndash;&gt;
+                            <!-- Blood banks will be loaded here -->
                         </select>
                     </div>
                     <div class="mb-3">
@@ -250,7 +249,7 @@
     </div>
 </div>
 
-&lt;!&ndash; Bootstrap JS &ndash;&gt;
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -494,7 +493,7 @@
     }
 </script>
 </body>
-</html>-->
+</html><!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -519,7 +518,7 @@
                     <label for="bloodBank" class="form-label">Blood Bank</label>
                     <select class="form-select" id="bloodBank" required>
                         <option value="">Select Blood Bank</option>
-                        <!-- Options will be populated via JavaScript -->
+                        &lt;!&ndash; Options will be populated via JavaScript &ndash;&gt;
                     </select>
                 </div>
                 <div class="mb-3">
@@ -583,4 +582,4 @@
     });
 </script>
 </body>
-</html>
+</html>-->

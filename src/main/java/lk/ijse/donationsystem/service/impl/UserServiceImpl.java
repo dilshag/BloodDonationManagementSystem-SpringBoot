@@ -1,6 +1,7 @@
 package lk.ijse.donationsystem.service.impl;
 
 
+import lk.ijse.donationsystem.Role;
 import lk.ijse.donationsystem.UserStatus;
 import lk.ijse.donationsystem.dto.UserDTO;
 import lk.ijse.donationsystem.entity.User;
@@ -17,10 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -118,5 +116,20 @@ public List<UserDTO> getAllUsers() {
         Optional<User> userOptional = userRepository.findByEmail(email);
         return userOptional.map(user -> user.getDonor() != null).orElse(false);
     }
+
+
+    //NOTIFICATION EKATA
+    @Override
+    public User getUserById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+    }
+
+    public User getAdminUser() {
+        // This query assumes you have a method to find the user by role
+        return userRepository.findFirstByRole(Role.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+    }
+
 
 }

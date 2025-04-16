@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .notification-item {
+            display: flex;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .notification-item.unread {
+            background-color: #f0f7ff;
+            border-left: 3px solid #0d6efd;
+        }
+        .notification-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            color: #0d6efd;
+        }
+        .notification-content h6 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">My Notifications</h5>
+                </div>
+                <div class="card-body" id="notificationContainer">
+                    <div class="text-center my-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userId = '123e4567-e89b-12d3-a456-426614174000'; // Replace with actual user ID
+
+        fetchNotifications(userId);
+
+        function fetchNotifications(userId) {
+            fetch(`http://localhost:8080/api/notifications/user/${userId}/recent?limit=5`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(notifications => {
+                    displayNotifications(notifications);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('notificationContainer').innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load notifications. Please check:
+                        <ul>
+                            <li>Backend is running</li>
+                            <li>CORS is enabled</li>
+                            <li>Correct API URL</li>
+                        </ul>
+                    </div>`;
+                });
+        }
+
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationContainer');
+            container.innerHTML = '';
+
+            if (notifications.length === 0) {
+                container.innerHTML = '<p class="text-muted">No notifications found</p>';
+                return;
+            }
+
+            notifications.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                item.innerHTML = `
+                <div class="notification-icon">
+                    <i class="${getNotificationIcon(notification)}"></i>
+                </div>
+                <div class="notification-content">
+                    <h6>${notification.message}</h6>
+                    <small class="text-muted">${formatDate(notification.createdAt)}</small>
+                </div>
+            `;
+                container.appendChild(item);
+            });
+        }
+
+        function getNotificationIcon(notification) {
+            if (notification.message.includes('Donation')) return 'fas fa-tint';
+            if (notification.message.includes('Request')) return 'fas fa-hand-holding-medical';
+            return 'fas fa-bell';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation System - Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #6c757d;
+        }
+
+        .notification-icon i {
+            font-size: 14px;
+        }
+
+        .notification-icon.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .notification-icon.danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .notification-content h6 {
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notification-content p {
+            margin-bottom: 0;
+            font-size: 13px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Notifications</h5>
+                </div>
+                <div class="card-body" id="notificationContainer">
+                    <div class="text-center my-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // In a real app, you would get this from your authentication system
+        const userId = '123e4567-e89b-12d3-a456-426614174000'; // Replace with actual user ID
+
+        loadNotifications(userId);
+
+        function loadNotifications(userId) {
+            // Corrected endpoint to match your backend
+            fetch(`http://localhost:8080/api/notifications/user/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(notifications => {
+                    // Show only the 5 most recent notifications
+                    const recentNotifications = notifications.slice(0, 5);
+                    renderNotifications(recentNotifications);
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notificationContainer').innerHTML =
+                        '<div class="alert alert-danger">Error loading notifications</div>';
+                });
+        }
+
+        function renderNotifications(notifications) {
+            const container = document.getElementById('notificationContainer');
+            container.innerHTML = '';
+
+            if (notifications.length === 0) {
+                container.innerHTML = '<p>No recent notifications</p>';
+                return;
+            }
+
+            notifications.forEach(notification => {
+                const notificationElement = createNotificationElement(notification);
+                container.appendChild(notificationElement);
+            });
+
+            // Add View All button
+            const viewAllBtn = document.createElement('a');
+            viewAllBtn.href = '#';
+            viewAllBtn.className = 'btn btn-sm btn-outline-primary w-100 mt-2';
+            viewAllBtn.textContent = 'View All Notifications';
+            viewAllBtn.addEventListener('click', () => {
+                loadAllNotifications(userId);
+            });
+            container.appendChild(viewAllBtn);
+        }
+
+        function createNotificationElement(notification) {
+            const element = document.createElement('div');
+            element.className = `notification-item ${notification.read ? '' : 'unread'}`;
+
+            const icon = document.createElement('div');
+            icon.className = 'notification-icon';
+            const iconType = getNotificationIcon(notification);
+            icon.innerHTML = `<i class="${iconType}"></i>`;
+
+            const content = document.createElement('div');
+            content.className = 'notification-content';
+            content.innerHTML = `
+            <h6>${notification.message}</h6>
+            <p>${formatDate(notification.createdAt)}</p>
+        `;
+
+            element.appendChild(icon);
+            element.appendChild(content);
+
+            if (!notification.read) {
+                element.addEventListener('click', () => {
+                    markAsRead(notification.id);
+                    element.classList.remove('unread');
+                });
+            }
+
+            return element;
+        }
+
+        function getNotificationIcon(notification) {
+            const msg = notification.message.toLowerCase();
+            if (msg.includes('donation')) return 'fas fa-tint';
+            if (msg.includes('request')) return 'fas fa-hand-holding-medical';
+            if (msg.includes('completed')) return 'fas fa-check-circle success';
+            if (msg.includes('alert')) return 'fas fa-exclamation-triangle danger';
+            return 'fas fa-bell';
+        }
+
+        function formatDate(dateString) {
+            // Convert LocalDateTime string to Date object
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+
+            if (diffInHours < 1) {
+                return 'Less than an hour ago';
+            } else if (diffInHours < 24) {
+                return `${diffInHours} hours ago`;
+            } else {
+                const diffInDays = Math.floor(diffInHours / 24);
+                return `${diffInDays} days ago`;
+            }
+        }
+
+        function markAsRead(notificationId) {
+            // Corrected endpoint to match your backend
+            fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
+                method: 'PUT'
+            }).catch(err => console.error('Error marking as read:', err));
+        }
+
+        function loadAllNotifications(userId) {
+            // Same as initial load but without limiting to 5
+            fetch(`http://localhost:8080/api/notifications/user/${userId}`)
+                .then(response => response.json())
+                .then(notifications => {
+                    renderNotifications(notifications);
+                })
+                .catch(error => {
+                    console.error('Error loading all notifications:', error);
+                });
+        }
+    });
+
+
+
+
+
+
+    /*
+    document.addEventListener('DOMContentLoaded', function() {
+        // In a real app, you would get this from your authentication system
+        const userId = '123e4567-e89b-12d3-a456-426614174000'; // Replace with actual user ID
+
+        loadNotifications(userId);
+
+        function loadNotifications(userId) {
+            fetch(`http://localhost:8080/api/notifications/user/${userId}/recent?limit=5`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(notifications => {
+                    renderNotifications(notifications);
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notificationContainer').innerHTML =
+                        '<div class="alert alert-danger">Error loading notifications</div>';
+                });
+        }
+
+        function renderNotifications(notifications) {
+            const container = document.getElementById('notificationContainer');
+            container.innerHTML = '';
+
+            if (notifications.length === 0) {
+                container.innerHTML = '<p>No recent notifications</p>';
+                return;
+            }
+
+            notifications.forEach(notification => {
+                const notificationElement = createNotificationElement(notification);
+                container.appendChild(notificationElement);
+            });
+
+            // Add View All button
+            const viewAllBtn = document.createElement('a');
+            viewAllBtn.href = '#';
+            viewAllBtn.className = 'btn btn-sm btn-outline-primary w-100 mt-2';
+            viewAllBtn.textContent = 'View All Notifications';
+            viewAllBtn.addEventListener('click', () => {
+                loadAllNotifications(userId);
+            });
+            container.appendChild(viewAllBtn);
+        }
+
+        function createNotificationElement(notification) {
+            const element = document.createElement('div');
+            element.className = `notification-item ${notification.read ? '' : 'unread'}`;
+
+            const icon = document.createElement('div');
+            icon.className = 'notification-icon';
+            const iconType = getNotificationIcon(notification);
+            icon.innerHTML = `<i class="${iconType}"></i>`;
+
+            const content = document.createElement('div');
+            content.className = 'notification-content';
+            content.innerHTML = `
+            <h6>${notification.message}</h6>
+            <p>${formatDate(notification.createdAt)}</p>
+        `;
+
+            element.appendChild(icon);
+            element.appendChild(content);
+
+            if (!notification.read) {
+                element.addEventListener('click', () => {
+                    markAsRead(notification.id);
+                    element.classList.remove('unread');
+                });
+            }
+
+            return element;
+        }
+
+        function getNotificationIcon(notification) {
+            const msg = notification.message.toLowerCase();
+            if (msg.includes('donation')) return 'fas fa-tint';
+            if (msg.includes('request')) return 'fas fa-hand-holding-medical';
+            if (msg.includes('completed')) return 'fas fa-check-circle success';
+            if (msg.includes('alert')) return 'fas fa-exclamation-triangle danger';
+            return 'fas fa-bell';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+
+            if (diffInHours < 1) {
+                return 'Less than an hour ago';
+            } else if (diffInHours < 24) {
+                return `${diffInHours} hours ago`;
+            } else {
+                const diffInDays = Math.floor(diffInHours / 24);
+                return `${diffInDays} days ago`;
+            }
+        }
+
+        function markAsRead(notificationId) {
+            fetch(`http://localhost:8080/api/notifications/user/{userId}`, {
+                method: 'PUT'
+            }).catch(err => console.error('Error marking as read:', err));
+        }
+
+        function loadAllNotifications(userId) {
+            fetch(`http://localhost:8080/api/notifications/{id}/read`)
+                .then(response => response.json())
+                .then(notifications => {
+                    renderNotifications(notifications);
+                })
+                .catch(error => {
+                    console.error('Error loading all notifications:', error);
+                });
+        }
+    });*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>-->

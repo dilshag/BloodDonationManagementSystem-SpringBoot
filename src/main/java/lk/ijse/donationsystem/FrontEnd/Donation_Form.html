@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .donation-form {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #d32f2f;
+        }
+
+        .form-header i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .blood-drop {
+            color: #d32f2f;
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .btn-donate {
+            background-color: #d32f2f;
+            color: white;
+            font-weight: bold;
+            padding: 10px 25px;
+        }
+
+        .btn-donate:hover {
+            background-color: #b71c1c;
+            color: white;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="donation-form">
+        <div class="form-header">
+            <i class="fas fa-tint blood-drop"></i>
+            <h2>Blood Donation Form</h2>
+            <p>Help save lives by donating blood</p>
+        </div>
+
+        <form id="donationForm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="donorId" class="form-label required-field">Donor ID</label>
+                    <input type="text" class="form-control" id="donorId" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="bloodBankId" class="form-label required-field">Blood Bank ID</label>
+                    <input type="text" class="form-control" id="bloodBankId" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="bloodType" class="form-label required-field">Blood Type</label>
+                    <select class="form-select" id="bloodType" required>
+                        <option value="">Select Blood Type</option>
+                        <option value="A_POSITIVE">A+</option>
+                        <option value="A_NEGATIVE">A-</option>
+                        <option value="B_POSITIVE">B+</option>
+                        <option value="B_NEGATIVE">B-</option>
+                        <option value="AB_POSITIVE">AB+</option>
+                        <option value="AB_NEGATIVE">AB-</option>
+                        <option value="O_POSITIVE">O+</option>
+                        <option value="O_NEGATIVE">O-</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="quantity" class="form-label required-field">Quantity (ml)</label>
+                    <input type="number" class="form-control" id="quantity" min="300" max="500" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="donatedDate" class="form-label required-field">Donation Date</label>
+                <input type="date" class="form-control" id="donatedDate" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-donate">
+                    <i class="fas fa-heartbeat me-2"></i> Submit Donation
+                </button>
+            </div>
+        </form>
+
+        <div id="responseMessage" class="mt-3 text-center"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date to today
+        document.getElementById('donatedDate').valueAsDate = new Date();
+
+        // Handle form submission
+        document.getElementById('donationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitDonation();
+        });
+    });
+
+    function submitDonation() {
+        const responseDiv = document.getElementById('responseMessage');
+        responseDiv.innerHTML = '';
+
+        // Create DTO object
+        const donationData = {
+            donorId: document.getElementById('donorId').value,
+            bloodBankId: document.getElementById('bloodBankId').value,
+            quantity: parseInt(document.getElementById('quantity').value),
+            donatedDate: document.getElementById('donatedDate').value,
+            bloodType: document.getElementById('bloodType').value
+        };
+
+        // Validate data
+        if (!donationData.donorId || !donationData.bloodBankId || !donationData.bloodType ||
+            isNaN(donationData.quantity) || !donationData.donatedDate) {
+            showResponse('Please fill all required fields', 'danger');
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = document.querySelector('#donationForm button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+
+        // Send AJAX request
+        fetch('http://localhost:8080/api/donations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(donationData)
+        })
+            .then(response => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-heartbeat me-2"></i> Submit Donation';
+
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.text();
+            })
+            .then(message => {
+                showResponse(message, 'success');
+                document.getElementById('donationForm').reset();
+                document.getElementById('donatedDate').valueAsDate = new Date();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showResponse(error.message || 'Failed to submit donation', 'danger');
+            });
+    }
+
+    function showResponse(message, type) {
+        const responseDiv = document.getElementById('responseMessage');
+        responseDiv.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+    }
+</script>
+</body>
+</html>
+
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Previous styles remain the same */
+        .autocomplete {
+            position: relative;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="donation-form">
+        <div class="form-header">
+            <i class="fas fa-tint blood-drop"></i>
+            <h2>Blood Donation Form</h2>
+            <p>Help save lives by donating blood</p>
+        </div>
+
+        <form id="donationForm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="donorSearch" class="form-label required-field">Search Donor</label>
+                    <div class="autocomplete">
+                        <input type="text" class="form-control" id="donorSearch" placeholder="Start typing donor name..." autocomplete="off">
+                        <input type="hidden" id="donorId">
+                        <div id="donorDetails" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                            <small>Selected Donor: <span id="selectedDonorName"></span> (ID: <span id="selectedDonorId"></span>)</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="bloodBank" class="form-label required-field">Blood Bank</label>
+                    <select class="form-select" id="bloodBank" required>
+                        <option value="">Select Blood Bank</option>
+                        &lt;!&ndash; Options will be loaded dynamically &ndash;&gt;
+                    </select>
+                </div>
+            </div>
+
+            &lt;!&ndash; Rest of the form remains the same &ndash;&gt;
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="bloodType" class="form-label required-field">Blood Type</label>
+                    <select class="form-select" id="bloodType" required>
+                        <option value="">Select Blood Type</option>
+                        <option value="A_POSITIVE">A+</option>
+                        <option value="A_NEGATIVE">A-</option>
+                        <option value="B_POSITIVE">B+</option>
+                        <option value="B_NEGATIVE">B-</option>
+                        <option value="AB_POSITIVE">AB+</option>
+                        <option value="AB_NEGATIVE">AB-</option>
+                        <option value="O_POSITIVE">O+</option>
+                        <option value="O_NEGATIVE">O-</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="quantity" class="form-label required-field">Quantity (ml)</label>
+                    <input type="number" class="form-control" id="quantity" min="300" max="500" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="donatedDate" class="form-label required-field">Donation Date</label>
+                <input type="date" class="form-control" id="donatedDate" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-donate">
+                    <i class="fas fa-heartbeat me-2"></i> Submit Donation
+                </button>
+            </div>
+        </form>
+
+        <div id="responseMessage" class="mt-3 text-center"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Global variables
+    let donors = [];
+    let bloodBanks = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date to today
+        document.getElementById('donatedDate').valueAsDate = new Date();
+
+        // Load blood banks
+        fetchBloodBanks();
+
+        // Setup donor search
+        setupDonorSearch();
+
+        // Handle form submission
+        document.getElementById('donationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitDonation();
+        });
+    });
+
+    function fetchBloodBanks() {
+        fetch('http://localhost:8080/api/blood-banks')
+            .then(response => response.json())
+            .then(data => {
+                bloodBanks = data;
+                const select = document.getElementById('bloodBank');
+
+                data.forEach(bank => {
+                    const option = document.createElement('option');
+                    option.value = bank.id;
+                    option.textContent = `${bank.name} - ${bank.location}`;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading blood banks:', error);
+                showResponse('Failed to load blood banks', 'danger');
+            });
+    }
+
+    function setupDonorSearch() {
+        const donorSearch = document.getElementById('donorSearch');
+
+        donorSearch.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+
+            if (searchTerm.length < 2) {
+                clearDonorSuggestions();
+                return;
+            }
+
+            fetch(`http://localhost:8080/api/donors/search?name=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    donors = data;
+                    showDonorSuggestions(data);
+                })
+                .catch(error => {
+                    console.error('Error searching donors:', error);
+                    clearDonorSuggestions();
+                });
+        });
+    }
+
+    function showDonorSuggestions(donorList) {
+        clearDonorSuggestions();
+
+        const container = document.createElement('div');
+        container.className = 'autocomplete-items';
+        container.id = 'donorSuggestions';
+
+        donorList.forEach(donor => {
+            const item = document.createElement('div');
+            item.textContent = `${donor.name} (${donor.nic})`;
+            item.addEventListener('click', function() {
+                selectDonor(donor);
+            });
+            container.appendChild(item);
+        });
+
+        document.querySelector('.autocomplete').appendChild(container);
+    }
+
+    function clearDonorSuggestions() {
+        const existing = document.getElementById('donorSuggestions');
+        if (existing) existing.remove();
+    }
+
+    function selectDonor(donor) {
+        document.getElementById('donorId').value = donor.id;
+        document.getElementById('donorSearch').value = donor.name;
+        document.getElementById('selectedDonorName').textContent = donor.name;
+        document.getElementById('selectedDonorId').textContent = donor.id;
+        document.getElementById('donorDetails').style.display = 'block';
+        document.getElementById('bloodType').value = donor.bloodType;
+
+        clearDonorSuggestions();
+    }
+
+    function submitDonation() {
+        const responseDiv = document.getElementById('responseMessage');
+        responseDiv.innerHTML = '';
+
+        // Create DTO object
+        const donationData = {
+            donorId: document.getElementById('donorId').value,
+            bloodBankId: document.getElementById('bloodBank').value,
+            quantity: parseInt(document.getElementById('quantity').value),
+            donatedDate: document.getElementById('donatedDate').value,
+            bloodType: document.getElementById('bloodType').value
+        };
+
+        // Validate data
+        if (!donationData.donorId || !donationData.bloodBankId || !donationData.bloodType ||
+            isNaN(donationData.quantity) || !donationData.donatedDate) {
+            showResponse('Please fill all required fields', 'danger');
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = document.querySelector('#donationForm button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+
+        // Send AJAX request
+        fetch('http://localhost:8080/api/donations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(donationData)
+        })
+            .then(response => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-heartbeat me-2"></i> Submit Donation';
+
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.text();
+            })
+            .then(message => {
+                showResponse(message, 'success');
+                document.getElementById('donationForm').reset();
+                document.getElementById('donatedDate').valueAsDate = new Date();
+                document.getElementById('donorDetails').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showResponse(error.message || 'Failed to submit donation', 'danger');
+            });
+    }
+
+    function showResponse(message, type) {
+        const responseDiv = document.getElementById('responseMessage');
+        responseDiv.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+    }
+</script>
+</body>
+</html>-->

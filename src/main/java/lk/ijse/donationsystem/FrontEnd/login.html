@@ -147,7 +147,7 @@
                             console.log("Role:", roleData.role);
 
                             if (roleData.role === "ADMIN") {
-                                window.location.href = "admin_dashboard.html";  // Redirect to Admin Dashboard
+                                window.location.href = "Admin.html";  // Redirect to Admin Dashboard
                             }
                             else if (roleData.role === "DONOR") {
                                 const token = response.data.token;
@@ -180,7 +180,8 @@
                                     });
                             }
                             else if (roleData.role === "RECIPIENT") {
-                                window.location.href = "dashboard.html";  // Redirect to User Dashboard
+                                window.location.href = "dashboard.html";
+                                //window.location.href = "dashboard.html";  // Redirect to User Dashboard
                             } else {
                                 alert("User role not recognized.");
                             }

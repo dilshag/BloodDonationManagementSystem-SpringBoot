@@ -6,7 +6,9 @@ import lk.ijse.donationsystem.dto.DonorDTO;
 import lk.ijse.donationsystem.dto.DonorProfileDTO;
 import lk.ijse.donationsystem.service.DonorService;
 
+import lk.ijse.donationsystem.service.NotificationService;
 import lk.ijse.donationsystem.utill.ResponseUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,9 @@ import java.util.UUID;
 public class DonorController {
 
     private final DonorService donorService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public DonorController(DonorService donorService) {
         this.donorService = donorService;
@@ -77,7 +82,12 @@ public class DonorController {
 
         // 6. Save donor using service
         String message = donorService.saveDonor(donorDTO);
+
+        // Notify admins
+       // notificationService.notifyAdmins("New donor registered: " + loggedInEmail);
+
         return ResponseEntity.ok(message);
+
     }
 
 
@@ -111,7 +121,8 @@ public class DonorController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('DONOR')")
+   // @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('DONOR')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<DonorDTO>> getAllDonors() {
         List<DonorDTO> donors = donorService.getAllDonors();

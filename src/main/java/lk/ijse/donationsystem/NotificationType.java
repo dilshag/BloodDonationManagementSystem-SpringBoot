@@ -2,6 +2,9 @@ package lk.ijse.donationsystem;
 
 
 public enum NotificationType {
-    STOCK_ALERT,
-    REQUEST_STATUS
+    BLOOD_BANK_ADDED,
+    DONOR_REGISTERED,
+    RECIPIENT_REGISTERED,
+    BLOOD_REQUESTED,
+    GENERAL
 }

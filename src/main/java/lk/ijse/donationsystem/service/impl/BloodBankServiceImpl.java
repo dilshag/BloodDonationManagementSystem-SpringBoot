@@ -4,9 +4,12 @@ import lk.ijse.donationsystem.BloodBankStatus;
 import lk.ijse.donationsystem.dto.BloodBankDTO;
 import lk.ijse.donationsystem.entity.BloodBank;
 import lk.ijse.donationsystem.entity.BloodInventory;
+import lk.ijse.donationsystem.entity.User;
 import lk.ijse.donationsystem.repo.BloodBankRepository;
 import lk.ijse.donationsystem.repo.BloodInventoryRepository;
 import lk.ijse.donationsystem.service.BloodBankService;
+import lk.ijse.donationsystem.service.NotificationService;
+import lk.ijse.donationsystem.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -25,6 +28,12 @@ public class BloodBankServiceImpl implements BloodBankService {
 
     @Autowired
     private  BloodBankRepository bloodBankRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -52,6 +61,14 @@ public class BloodBankServiceImpl implements BloodBankService {
         // Save both (cascade is preferred, or manual save)
         bloodBankRepository.save(bloodBank);
         // Optional: bloodInventoryRepository.save(inventory); → only if not using Cascade
+
+//NOTIFICATION
+        // 🔔 Fetch admin user
+        User adminUser = userService.getAdminUser();
+
+        // 🔔 Send notification to admin
+        notificationService.notifyBloodBankAdded(adminUser, bloodBank);
+// notificationService.notifyBloodBankAdded(adminUser, savedBank);
 
         return "Blood bank and inventory added successfully.";
       /*  bloodBankRepository.save(bloodBank);

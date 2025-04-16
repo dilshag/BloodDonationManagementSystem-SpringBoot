@@ -9,6 +9,8 @@ import lk.ijse.donationsystem.entity.User;
 import lk.ijse.donationsystem.repo.DonorRepository;
 import lk.ijse.donationsystem.repo.UserRepository;
 import lk.ijse.donationsystem.service.DonorService;
+import lk.ijse.donationsystem.service.NotificationService;
+import lk.ijse.donationsystem.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,12 @@ public class DonorServiceImpl implements DonorService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -164,6 +172,14 @@ public class DonorServiceImpl implements DonorService {
 
         // Save
         donorRepository.save(donor);
+
+//NOTIFICATION WLATA
+// 👉 Fetch the admin user
+        User adminUser = userService.getAdminUser();
+//NOTIFICATION WLATA
+// 👉 Send a notification to the admin
+        notificationService.notifyDonorAdded(adminUser, donor); // not "savedDonor", because you already have "donor"
+
 
         return "Donor registered successfully.";
     }

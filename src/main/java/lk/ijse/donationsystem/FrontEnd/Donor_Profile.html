@@ -1,5 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Donor Profile - LifeSaver</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #1e88e5;
+            --dark-color: #263238;
+            --light-color: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .navbar {
+            background-color: var(--dark-color);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .profile-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), #b71c1c);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .profile-body {
+            padding: 30px;
+        }
+
+        .profile-section {
+            margin-bottom: 25px;
+        }
+
+        .profile-section h4 {
+            color: var(--dark-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: var(--dark-color);
+        }
+
+        .blood-type {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #ffebee;
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            color: #43a047;
+            font-weight: 600;
+        }
+
+        .status-inactive {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .btn-edit:hover {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        .donation-history {
+            margin-top: 30px;
+        }
+
+        .donation-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .donation-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 15px;
+            }
+
+            .info-item {
+                flex-direction: column;
+            }
+
+            .info-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="#">
+            <i class="fas fa-heartbeat me-2"></i> LifeSaver
+        </a>
+        <div>
+            <button class="btn btn-light me-2" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-home"></i> Dashboard
+            </button>
+            <button class="btn btn-outline-light" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Profile Content -->
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile Image" class="profile-image">
+            <h2 id="donorName">Loading...</h2>
+            <div>
+                <span class="blood-type" id="bloodTypeDisplay">-</span>
+                <span class="ms-3" id="statusDisplay"></span>
+            </div>
+        </div>
+
+        <div class="profile-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="profile-section">
+                        <h4><i class="fas fa-user-circle me-2"></i>Personal Information</h4>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span id="donorEmail">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone:</span>
+                            <span id="donorPhone">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Address:</span>
+                            <span id="donorAddress">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="profile-section">
+                        <h4><i class="fas fa-heartbeat me-2"></i>Donation Information</h4>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span id="donorStatus">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Donation:</span>
+                            <span id="lastDonation">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total Donations:</span>
+                            <span id="totalDonations">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-edit" onclick="window.location.href='edit-profile.html'">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </button>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-edit" onclick="window.location.href='Donation_Form.html'">
+                    <i class="fas fa-edit me-2"></i>Donate Now
+                </button>
+            </div>
+
+            <div class="donation-history">
+                <h4 class="mt-5 mb-4"><i class="fas fa-history me-2"></i>Donation History</h4>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="donationHistory">
+                            <div class="donation-item">
+                                <span>No donation history available</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+            Swal.fire({
+                title: 'Session Expired',
+                text: 'Please login again',
+                icon: 'warning'
+            }).then(() => {
+                window.location.href = 'login.html';
+            });
+            return;
+        }
+
+        // Load donor profile
+        fetchDonorProfile(token);
+
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    });
+
+    function fetchDonorProfile(token) {
+        fetch("http://localhost:8080/api/v1/donor/profile", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to fetch profile");
+                return response.json();
+            })
+            .then(donor => {
+                // Update profile information
+                document.getElementById('donorName').textContent = donor.name || 'N/A';
+                document.getElementById('donorEmail').textContent = donor.email || 'N/A';
+                document.getElementById('donorPhone').textContent = donor.phoneNumber || 'N/A';
+                document.getElementById('donorAddress').textContent = donor.address || 'N/A';
+                document.getElementById('bloodTypeDisplay').textContent = donor.bloodType || '-';
+
+                // Set status with appropriate styling
+                const statusElement = document.getElementById('donorStatus');
+                statusElement.textContent = donor.status || 'N/A';
+                if (donor.status === 'ACTIVE') {
+                    statusElement.className = 'status-active';
+                } else if (donor.status === 'INACTIVE') {
+                    statusElement.className = 'status-inactive';
+                }
+
+                // Set profile image
+                if (donor.profilePictureUrl) {
+                    document.getElementById('profileImage').src =
+                        `http://localhost:8080${donor.profilePictureUrl.replace(/\\/g, "/")}`;
+                }
+
+                // Load donation history (mock data - replace with actual API call)
+                loadDonationHistory(token, donor.email);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to load donor profile',
+                    icon: 'error'
+                });
+            });
+    }
+
+    function loadDonationHistory(token, email) {
+        // This is a mock function - replace with actual API call to your backend
+        // Example: fetch(`http://localhost:8080/api/v1/donor/${email}/donations`, {...})
+
+        // Mock data
+        const mockDonations = [
+            { date: '2023-06-15', location: 'Central Blood Bank', units: 1 },
+            { date: '2023-03-10', location: 'City Hospital', units: 1 },
+            { date: '2022-12-05', location: 'Red Cross Center', units: 1 }
+        ];
+
+        const historyContainer = document.getElementById('donationHistory');
+
+        if (mockDonations.length === 0) {
+            historyContainer.innerHTML = `
+                    <div class="donation-item">
+                        <span>No donation history available</span>
+                    </div>
+                `;
+            return;
+        }
+
+        let historyHTML = '';
+        mockDonations.forEach(donation => {
+            historyHTML += `
+                    <div class="donation-item">
+                        <div>
+                            <strong>${donation.date}</strong>
+                            <div class="text-muted small">${donation.location}</div>
+                        </div>
+                        <span class="badge bg-danger">${donation.units} unit(s)</span>
+                    </div>
+                `;
+        });
+
+        historyContainer.innerHTML = historyHTML;
+        document.getElementById('totalDonations').textContent = mockDonations.length;
+        document.getElementById('lastDonation').textContent = mockDonations[0].date;
+    }
+</script>
+</body>
+</html>
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -60,429 +422,4 @@
 
 
 
-
-
-<!--<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donor Profile</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .profile-pic {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ddd;
-        }
-
-        .upload-btn {
-            display: block;
-            background-color: #007bff;
-            color: white;
-            padding: 5px;
-            text-align: center;
-            border-radius: 4px;
-            margin-top: 5px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin: 15px 0;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        .history-section {
-            margin-top: 20px;
-        }
-
-        .donation-history {
-            list-style: none;
-            padding: 0;
-        }
-
-        .donation-history li {
-            background: #e9ecef;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .settings-section {
-            margin-top: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-    <h2>Donor Profile</h2>
-
-    &lt;!&ndash; Profile Section &ndash;&gt;
-    <div class="profile-section">
-        <img src="default-profile.jpg" alt="Profile Picture" id="profile-pic" class="profile-pic">
-        <div>
-            <input type="file" id="upload-pic" style="display: none;">
-            <label class="upload-btn" for="upload-pic">Change Photo</label>
-        </div>
-    </div>
-
-    &lt;!&ndash; Donor Info Form &ndash;&gt;
-    <form id="update-profile-form">
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" required>
-        </div>
-
-        <div class="form-group">
-            <label for="bloodType">Blood Type</label>
-            <select id="bloodType">
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="phoneNumber">Phone Number</label>
-            <input type="text" id="phoneNumber" required>
-        </div>
-
-        <button type="submit">Update Profile</button>
-    </form>
-
-    &lt;!&ndash; Donation History &ndash;&gt;
-    <div class="history-section">
-        <h3>Donation History</h3>
-        <ul class="donation-history" id="donation-history">
-            <li>Loading...</li>
-        </ul>
-    </div>
-
-    &lt;!&ndash; Settings &ndash;&gt;
-    <div class="settings-section">
-        <h3>Settings</h3>
-        <button onclick="changePassword()">Change Password</button>
-    </div>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        loadDonorProfile();
-        loadDonationHistory();
-    });
-
-    // Load Donor Profile Data
-    function loadDonorProfile() {
-        fetch("http://localhost:8080/api/donor/profile", {
-            headers: {
-                "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("name").value = data.name;
-                document.getElementById("bloodType").value = data.bloodType;
-                document.getElementById("phoneNumber").value = data.phoneNumber;
-                if (data.profilePicture) {
-                    document.getElementById("profile-pic").src = data.profilePicture;
-                }
-            });
-    }
-
-    // Update Profile
-    document.getElementById("update-profile-form").addEventListener("submit", function (event) {
-        event.preventDefault();
-        const updatedData = {
-            name: document.getElementById("name").value,
-            bloodType: document.getElementById("bloodType").value,
-            phoneNumber: document.getElementById("phoneNumber").value
-        };
-
-        fetch("http://localhost:8080/api/donor/update", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
-            },
-            body: JSON.stringify(updatedData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert("Profile updated successfully!");
-            });
-    });
-
-    // Load Donation History
-    function loadDonationHistory() {
-        fetch("http://localhost:8080/api/donor/history", {
-            headers: {
-                "Authorization": "Bearer YOUR_JWT_TOKEN_HERE"
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                let historyList = document.getElementById("donation-history");
-                historyList.innerHTML = "";
-                data.forEach(donation => {
-                    let listItem = document.createElement("li");
-                    listItem.textContent = `Donated ${donation.bloodType} on ${donation.date}`;
-                    historyList.appendChild(listItem);
-                });
-            });
-    }
-
-    // Change Password
-    function changePassword() {
-        alert("Redirecting to Change Password Page...");
-        window.location.href = "/change-password.html";
-    }
-
-</script>
-
-</body>
-
-</html>-->
-
-<!--========================================================
-============================================================-->
-
-
-
-
-
-<!--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donor Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            background: #f7f7f7;
-            font-family: Arial, sans-serif;
-        }
-
-        .dashboard-container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .profile-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ff6f61;
-        }
-
-        .donation-history, .notifications {
-            margin-top: 20px;
-        }
-
-        .table th {
-            background: #ff6f61;
-            color: white;
-        }
-
-        .btn-primary {
-            background-color: #ff6f61;
-            border-color: #ff6f61;
-            transition: 0.3s;
-        }
-
-        .btn-primary:hover {
-            background-color: #e55b4b;
-        }
-
-        .notification {
-            padding: 10px;
-            border-radius: 5px;
-            background: #fff3cd;
-            color: #856404;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="dashboard-container">
-    <div class="profile-section">
-        <img src="default-avatar.png" alt="Profile" id="profileImage" class="profile-image">
-        <div>
-            <h5 id="donorName">Loading...</h5>
-            <p><b>Blood Type:</b> <span id="donorBloodType">Loading...</span></p>
-        </div>
-    </div>
-
-    <div class="donation-history">
-        <h4>Donation History</h4>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Blood Bank</th>
-                <th>Quantity</th>
-            </tr>
-            </thead>
-            <tbody id="donationTable">
-            <tr>&lt;!&ndash;<td colspan="3">Loading donation history...</td>&ndash;&gt;</tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="notifications">
-        <h4>Notifications</h4>
-        <div id="notificationList">
-           &lt;!&ndash; <p>Loading notifications...</p>&ndash;&gt;
-        </div>
-    </div>
-</div>
-<script>
-    $(document).ready(function () {
-        const email = sessionStorage.getItem('email');  // Get email from sessionStorage
-        if (!email) {
-            Swal.fire("Error!", "Email not found. Please log in again.", "error");
-            return;
-        }
-
-        // Load donor details using email
-        $.ajax({
-            url: `http://localhost:8080/api/v1/donor/search/${email}`,  // Use email instead of donorId
-            type: "GET",
-            success: function (response) {
-                if (response && response.name && response.bloodType) {
-                    $("#donorName").text(response.name);
-                    $("#donorBloodType").text(response.bloodType);
-                    if (response.profileImage) {
-                        $("#profileImage").attr("src", response.profileImage);
-                    }
-                } else {
-                    Swal.fire("Error!", "Donor details not found.", "error");
-                }
-            },
-            error: function () {
-                Swal.fire("Error!", "Failed to load donor details!", "error");
-            }
-        });
-        /*// Load donation history
-        $.ajax({
-            url: `http://localhost:8080/api/v1/donor/${email}/donation-history`,  // Use email instead of donorId
-            type: "GET",
-            success: function (donations) {
-                let tableContent = "";
-                donations.forEach(donation => {
-                    tableContent += `
-                        <tr>
-                            <td>${donation.date}</td>
-                            <td>${donation.bloodBank}</td>
-                            <td>${donation.quantity} ml</td>
-                        </tr>`;
-                });
-                $("#donationTable").html(tableContent || `<tr><td colspan="3">No records found.</td></tr>`);
-            },
-            error: function () {
-                $("#donationTable").html(`<tr><td colspan="3">Error loading history.</td></tr>`);
-            }
-        });
-
-        // Load notifications
-        $.ajax({
-            url: `http://localhost:8080/api/v1/donor/${email}/notifications`,  // Use email instead of donorId
-            type: "GET",
-            success: function (notifications) {
-                let notificationContent = "";
-                notifications.forEach(notification => {
-                    notificationContent += `<div class="notification">${notification.message}</div>`;
-                });
-                $("#notificationList").html(notificationContent || "<p>No notifications available.</p>");
-            },
-            error: function () {
-                $("#notificationList").html("<p>Error loading notifications.</p>");
-            }
-        });*/
-    });
-</script>
-
-</body>
-</html>
 -->

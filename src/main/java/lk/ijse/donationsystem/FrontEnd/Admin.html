@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Blood Donation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #1e88e5;
+            --dark-color: #263238;
+            --light-color: #f5f5f5;
+            --success-color: #43a047;
+            --warning-color: #ffa000;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(180deg, var(--dark-color), #37474f);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand h2 {
+            font-weight: 600;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-brand h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li {
+            margin: 5px 0;
+            position: relative;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu .badge {
+            position: absolute;
+            right: 20px;
+            background-color: var(--primary-color);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+            display: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info .dropdown-toggle::after {
+            display: none;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            padding: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .blood-group-card {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .blood-group-card .blood-type {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .blood-group-card .highlight {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .stats-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .stats-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .stats-card .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .chart-card {
+            border-left: 4px solid var(--success-color);
+        }
+
+        /* Recent Activity */
+        .activity-item {
+            display: flex;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            background-color: rgba(30, 136, 229, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .activity-icon.danger {
+            background-color: rgba(211, 47, 47, 0.1);
+            color: var(--primary-color);
+        }
+
+        .activity-icon.success {
+            background-color: rgba(67, 160, 71, 0.1);
+            color: var(--success-color);
+        }
+
+        .activity-content h6 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .activity-content p {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Blood Type Colors */
+        .blood-o-positive { color: #d32f2f; }
+        .blood-o-negative { color: #f44336; }
+        .blood-a-positive { color: #e91e63; }
+        .blood-a-negative { color: #9c27b0; }
+        .blood-b-positive { color: #673ab7; }
+        .blood-b-negative { color: #3f51b5; }
+        .blood-ab-positive { color: #2196f3; }
+        .blood-ab-negative { color: #03a9f4; }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h2><i class="fas fa-heartbeat"></i> LifeSaver</h2>
+    </div>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="#" class="active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="donor.html">
+                <i class="fas fa-user-friends"></i> Donors
+                <span class="badge rounded-pill bg-danger ms-auto">5</span>
+            </a>
+        </li>
+        <li>
+            <a href="user_list.html">
+                <i class="fas fa-users"></i> Users
+            </a>
+        </li>
+        <li>
+            <a href="blood-requests.html">
+                <i class="fas fa-tint"></i> Blood Requests
+                <span class="badge rounded-pill bg-danger ms-auto">3</span>
+            </a>
+        </li>
+        <li>
+            <a href="BloodBank.html">
+                <i class="fas fa-hospital"></i> Blood Banks
+            </a>
+        </li>
+        <li>
+            <a href="inventory_management.html">
+                <i class="fas fa-warehouse"></i> Inventory
+            </a>
+        </li>
+        <li>
+            <a href="reports.html">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+        </li>
+        <li>
+            <a href="settings.html">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="user-info">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown">
+                    Admin User
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="logout.html"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-cards">
+        <div class="row mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Total Donors</div>
+                        <div class="progress mt-3" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: 75%"></div>
+                        </div>
+                        <small class="text-muted">12% increase from last month</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Pending Requests</div>
+                        <div class="progress mt-3" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                        </div>
+                        <small class="text-muted">3 new requests today</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stat-value">56</div>
+                        <div class="stat-label">Available Units</div>
+                        <div class="progress mt-3" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 60%"></div>
+                        </div>
+                        <small class="text-muted">Critical: O- (2 units left)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Blood Banks</div>
+                        <div class="progress mt-3" style="height: 8px;">
+                            <div class="progress-bar bg-info" style="width: 30%"></div>
+                        </div>
+                        <small class="text-muted">1 new bank this month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card chart-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Blood Stock Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="bloodStockChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6>New Blood Donation</h6>
+                                <p>John Doe donated O+ blood - 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6>Request Fulfilled</h6>
+                                <p>Blood request #4567 completed - 5 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6>New Donor Registered</h6>
+                                <p>Sarah Smith joined as donor - Yesterday</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6>Low Stock Alert</h6>
+                                <p>B- blood type is running low - Yesterday</p>
+                            </div>
+                        </div>
+                        <a href="Notification.html" class="btn btn-sm btn-outline-primary w-100 mt-2">View All Activity</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Blood Group Availability</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                                This Month
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Today</a></li>
+                                <li><a class="dropdown-item" href="#">This Week</a></li>
+                                <li><a class="dropdown-item" href="#">This Month</a></li>
+                                <li><a class="dropdown-item" href="#">This Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="blood-group-card card h-100">
+                                    <div class="card-body text-center">
+                                        <h3 class="blood-type blood-o-positive">O+</h3>
+                                        <p class="mb-2">Available Units: <span class="highlight">5</span></p>
+                                        <p class="mb-2">Donors: <span class="highlight">12</span></p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-danger" style="width: 65%"></div>
+                                        </div>
+                                        <small class="text-muted">Status: Good</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="blood-group-card card h-100">
+                                    <div class="card-body text-center">
+                                        <h3 class="blood-type blood-o-negative">O-</h3>
+                                        <p class="mb-2">Available Units: <span class="highlight">2</span></p>
+                                        <p class="mb-2">Donors: <span class="highlight">3</span></p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: 25%"></div>
+                                        </div>
+                                        <small class="text-muted">Status: Critical</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="blood-group-card card h-100">
+                                    <div class="card-body text-center">
+                                        <h3 class="blood-type blood-a-positive">A+</h3>
+                                        <p class="mb-2">Available Units: <span class="highlight">7</span></p>
+                                        <p class="mb-2">Donors: <span class="highlight">8</span></p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 75%"></div>
+                                        </div>
+                                        <small class="text-muted">Status: Good</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="blood-group-card card h-100">
+                                    <div class="card-body text-center">
+                                        <h3 class="blood-type blood-b-positive">B+</h3>
+                                        <p class="mb-2">Available Units: <span class="highlight">4</span></p>
+                                        <p class="mb-2">Donors: <span class="highlight">6</span></p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" style="width: 45%"></div>
+                                        </div>
+                                        <small class="text-muted">Status: Moderate</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Toggle Sidebar
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('active');
+    });
+
+    // Initialize Blood Stock Chart
+    const ctx = document.getElementById('bloodStockChart').getContext('2d');
+    const bloodStockChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'],
+            datasets: [{
+                label: 'Available Units',
+                data: [5, 2, 7, 3, 4, 1, 2, 1],
+                backgroundColor: [
+                    '#d32f2f', '#f44336', '#e91e63', '#9c27b0',
+                    '#673ab7', '#3f51b5', '#2196f3', '#03a9f4'
+                ],
+                borderColor: [
+                    '#b71c1c', '#d32f2f', '#c2185b', '#7b1fa2',
+                    '#5e35b1', '#303f9f', '#1976d2', '#0288d1'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.parsed.y} units available`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Units Available'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Blood Type'
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize dropdowns
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl)
+    });
+
+    // Simulate loading data
+    setTimeout(() => {
+        // This would be replaced with actual API calls in a real application
+        console.log("Dashboard data loaded");
+    }, 1000);
+</script>
+</body>
+</html>

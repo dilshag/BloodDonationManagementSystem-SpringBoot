@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,21 +11,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: #d32f2f;
-            --secondary-color: #f5f5f5;
-            --accent-color: #ffcdd2;
-            --text-color: #333;
-            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            &#45;&#45;primary-color: #d32f2f;
+            &#45;&#45;secondary-color: #f5f5f5;
+            &#45;&#45;accent-color: #ffcdd2;
+            &#45;&#45;text-color: #333;
+            &#45;&#45;card-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
-            color: var(--text-color);
+            color: var(&#45;&#45;text-color);
         }
 
         .navbar {
-            background-color: var(--primary-color);
+            background-color: var(&#45;&#45;primary-color);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -40,14 +41,14 @@
         }
 
         .sidebar .nav-link {
-            color: var(--text-color);
+            color: var(&#45;&#45;text-color);
             border-radius: 5px;
             margin: 5px 0;
         }
 
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--accent-color);
-            color: var(--primary-color);
+            background-color: var(&#45;&#45;accent-color);
+            color: var(&#45;&#45;primary-color);
         }
 
         .sidebar .nav-link i {
@@ -61,24 +62,25 @@
         .card {
             border: none;
             border-radius: 10px;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(&#45;&#45;card-shadow);
             margin-bottom: 20px;
             transition: transform 0.3s;
         }
+
 
         .card:hover {
             transform: translateY(-5px);
         }
 
         .card-header {
-            background-color: var(--primary-color);
+            background-color: var(&#45;&#45;primary-color);
             color: white;
-            border-radius: 10px 10px 0 0 !important;
+            border-radius: 10px 10px 0px 0px !important;
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(&#45;&#45;primary-color);
+            border-color: var(&#45;&#45;primary-color);
         }
 
         .btn-primary:hover {
@@ -132,12 +134,12 @@
         }
 
         .blood-bank-card {
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(&#45;&#45;primary-color);
         }
     </style>
 </head>
 <body>
-<!-- Navbar -->
+&lt;!&ndash; Navbar &ndash;&gt;
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
@@ -165,8 +167,8 @@
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 sidebar p-0">
+        &lt;!&ndash; Sidebar &ndash;&gt;
+       &lt;!&ndash; <div class="col-md-2 sidebar p-0">
             <div class="list-group list-group-flush">
                 <a href="admin_dashboard.html" class="list-group-item list-group-item-action">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
@@ -187,9 +189,9 @@
                     <i class="fas fa-hand-holding-heart me-2"></i>Requests
                 </a>
             </div>
-        </div>
+        </div>&ndash;&gt;
 
-        <!-- Main Content -->
+        &lt;!&ndash; Main Content &ndash;&gt;
         <div class="col-md-10 main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-hospital me-2"></i>Blood Bank Management</h2>
@@ -198,7 +200,7 @@
                 </button>
             </div>
 
-            <!-- Filter and Search -->
+            &lt;!&ndash; Filter and Search &ndash;&gt;
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="search-box">
@@ -217,7 +219,7 @@
                 </div>
             </div>
 
-            <!-- Blood Banks Table -->
+            &lt;!&ndash; Blood Banks Table &ndash;&gt;
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-list me-2"></i>Blood Banks List</h5>
@@ -237,7 +239,7 @@
                             </tr>
                             </thead>
                             <tbody id="bloodBanksTableBody">
-                            <!-- Blood banks will be loaded here -->
+                            &lt;!&ndash; Blood banks will be loaded here &ndash;&gt;
                             </tbody>
                         </table>
                     </div>
@@ -247,7 +249,7 @@
     </div>
 </div>
 
-<!-- Add Blood Bank Modal -->
+&lt;!&ndash; Add Blood Bank Modal &ndash;&gt;
 <div class="modal fade" id="addBloodBankModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -291,7 +293,7 @@
     </div>
 </div>
 
-<!-- Edit Blood Bank Modal -->
+&lt;!&ndash; Edit Blood Bank Modal &ndash;&gt;
 <div class="modal fade" id="editBloodBankModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -318,13 +320,13 @@
                         <label for="editBloodBankEmail" class="form-label">Email</label>
                         <input type="text" class="form-control" id="editBloodBankEmail" required>
                     </div>
-<!--                    <div class="mb-3">
+&lt;!&ndash;                    <div class="mb-3">
                         <label for="editBloodBankStatus" class="form-label">Status</label>
                         <select class="form-select" id="editBloodBankStatus" required>
                             <option value="ENABLED">Active</option>
                             <option value="DISABLED">Inactive</option>
                         </select>
-                    </div>-->
+                    </div>&ndash;&gt;
                 </form>
             </div>
             <div class="modal-footer">
@@ -598,6 +600,585 @@
             }
         });
 
+    }
+</script>
+</body>
+</html>-->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #f5f5f5;
+            --accent-color: #ffcdd2;
+            --text-color: #333;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0px 0px !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-inactive {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 3px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #6c757d;
+        }
+
+        .search-box input {
+            padding-left: 35px;
+            border-radius: 20px;
+        }
+
+        .blood-bank-card {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Center the table */
+        #bloodBanksTable {
+            width: 100% !important;
+            margin: 0 auto;
+        }
+
+        /* Make table responsive */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        /* Center table headers and cells */
+        #bloodBanksTable th,
+        #bloodBanksTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Add some padding to action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-hospital me-2"></i>Blood Donation System
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-hospital me-2"></i>Blood Bank Management</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBloodBankModal">
+            <i class="fas fa-plus me-1"></i>Add Blood Bank
+        </button>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search blood banks...">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary active" id="filterAll">All</button>
+                    <button type="button" class="btn btn-outline-secondary" id="filterActive">Active</button>
+                    <button type="button" class="btn btn-outline-secondary" id="filterInactive">Inactive</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blood Banks Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Blood Banks List</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="bloodBanksTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="bloodBanksTableBody">
+                    <!-- Blood banks will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Blood Bank Modal -->
+<div class="modal fade" id="addBloodBankModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Blood Bank</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBloodBankForm">
+                    <div class="mb-3">
+                        <label for="bloodBankName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="bloodBankName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodBankLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="bloodBankLocation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodBankPhoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="bloodBankPhoneNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodBankEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="bloodBankEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bloodBankStatus" class="form-label">Status</label>
+                        <select class="form-select" id="bloodBankStatus" required>
+                            <option value="ENABLED">Active</option>
+                            <option value="DISABLED">Inactive</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveBloodBankBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Blood Bank Modal -->
+<div class="modal fade" id="editBloodBankModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Blood Bank</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBloodBankForm">
+                    <input type="hidden" id="editBloodBankId">
+                    <div class="mb-3">
+                        <label for="editBloodBankName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="editBloodBankName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editBloodBankLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="editBloodBankLocation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editBloodBankPhoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="editBloodBankPhoneNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editBloodBankEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editBloodBankEmail" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="updateBloodBankBtn">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const authToken = localStorage.getItem('authToken');
+
+        if (!authToken) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Load all blood banks
+        loadBloodBanks();
+
+        // Add Blood Bank
+        $('#saveBloodBankBtn').click(function() {
+            const bloodBankData = {
+                name: $('#bloodBankName').val(),
+                location: $('#bloodBankLocation').val(),
+                phoneNumber: $('#bloodBankPhoneNumber').val(),
+                email: $('#bloodBankEmail').val(),
+                status: $('#bloodBankStatus').val()
+            };
+
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/bloodbanks/add',
+                type: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                data: JSON.stringify(bloodBankData),
+                success: function(response) {
+                    $('#addBloodBankModal').modal('hide');
+                    Swal.fire('Success!', 'Blood bank added successfully', 'success');
+                    loadBloodBanks();
+                    $('#addBloodBankForm')[0].reset();
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', xhr.responseText || 'Failed to add blood bank', 'error');
+                }
+            });
+        });
+
+        // Update Blood Bank
+        $('#updateBloodBankBtn').click(function() {
+            const bloodBankId = $('#editBloodBankId').val();
+            const bloodBankData = {
+                name: $('#editBloodBankName').val(),
+                location: $('#editBloodBankLocation').val(),
+                phoneNumber: $('#editBloodBankPhoneNumber').val(),
+                email: $('#editBloodBankEmail').val(),
+                status: $('#editBloodBankStatus').val()
+            };
+
+            $.ajax({
+                url: `http://localhost:8080/api/v1/bloodbanks/update/${bloodBankId}`,
+                type: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                data: JSON.stringify(bloodBankData),
+                success: function(response) {
+                    $('#editBloodBankModal').modal('hide');
+                    Swal.fire('Success!', 'Blood bank updated successfully', 'success');
+                    loadBloodBanks();
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', xhr.responseText || 'Failed to update blood bank', 'error');
+                }
+            });
+        });
+
+        // Filter buttons
+        $('#filterAll').click(function() {
+            loadBloodBanks();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterActive').click(function() {
+            loadActiveBloodBanks();
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        $('#filterInactive').click(function() {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/bloodbanks/all',
+                type: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                },
+                success: function(response) {
+                    const inactiveBanks = response.filter(bank => bank.status === 'DISABLED');
+                    renderBloodBanks(inactiveBanks);
+                }
+            });
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
+        // Search functionality
+        $('#searchInput').keyup(function() {
+            const searchText = $(this).val().toLowerCase();
+            if (searchText.length > 0) {
+                $('#bloodBanksTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                });
+            } else {
+                loadBloodBanks();
+            }
+        });
+
+        // Logout
+        $('#logoutBtn').click(function() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    });
+
+    function loadBloodBanks() {
+        const authToken = localStorage.getItem('authToken');
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/bloodbanks/all',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            success: function(response) {
+                renderBloodBanks(response);
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load blood banks', 'error');
+            }
+        });
+    }
+
+    function loadActiveBloodBanks() {
+        const authToken = localStorage.getItem('authToken');
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/bloodbanks/active',
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            success: function(response) {
+                renderBloodBanks(response);
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load active blood banks', 'error');
+            }
+        });
+    }
+
+    function renderBloodBanks(bloodBanks) {
+        const tableBody = $('#bloodBanksTableBody');
+        tableBody.empty();
+
+        if (bloodBanks.length === 0) {
+            tableBody.append('<tr><td colspan="7" class="text-center">No blood banks found</td></tr>');
+            return;
+        }
+
+        bloodBanks.forEach(bank => {
+            const statusClass = bank.status === 'ENABLED' ? 'status-active' : 'status-inactive';
+            const statusText = bank.status === 'ENABLED' ? 'Active' : 'Inactive';
+
+            tableBody.append(`
+                <tr>
+                    <td>${bank.id.substring(0, 8)}...</td>
+                    <td>${bank.name}</td>
+                    <td>${bank.location}</td>
+                    <td>${bank.phoneNumber}</td>
+                    <td>${bank.email}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary action-btn edit-btn" onclick="openEditModal('${bank.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger action-btn delete-btn" onclick="deleteBloodBank('${bank.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button class="btn btn-sm ${bank.status === 'ENABLED' ? 'btn-outline-warning' : 'btn-outline-success'} action-btn"
+                                onclick="toggleBloodBankStatus('${bank.id}', '${bank.status === 'ENABLED' ? 'DISABLED' : 'ENABLED'}')">
+                                <i class="fas ${bank.status === 'ENABLED' ? 'fa-times' : 'fa-check'}"></i>
+                                ${bank.status === 'ENABLED' ? 'Deactivate' : 'Activate'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function openEditModal(bloodBankId) {
+        const authToken = localStorage.getItem('authToken');
+        $.ajax({
+            url: `http://localhost:8080/api/v1/bloodbanks/${bloodBankId}`,
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            success: function(response) {
+                $('#editBloodBankId').val(response.id);
+                $('#editBloodBankName').val(response.name);
+                $('#editBloodBankLocation').val(response.location);
+                $('#editBloodBankPhoneNumber').val(response.phoneNumber);
+                $('#editBloodBankEmail').val(response.email);
+                $('#editBloodBankStatus').val(response.status);
+                $('#editBloodBankModal').modal('show');
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to load blood bank details', 'error');
+            }
+        });
+    }
+
+    function deleteBloodBank(bloodBankId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const authToken = localStorage.getItem('authToken');
+                $.ajax({
+                    url: `http://localhost:8080/api/v1/bloodbanks/delete/${bloodBankId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    success: function(response) {
+                        Swal.fire('Deleted!', 'Blood bank has been deleted.', 'success');
+                        loadBloodBanks();
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error!', 'Failed to delete blood bank', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function toggleBloodBankStatus(bloodBankId, newStatus) {
+        const authToken = localStorage.getItem('authToken');
+        $.ajax({
+            url: `http://localhost:8080/api/v1/bloodbanks/set-status/${bloodBankId}?status=${newStatus}`,
+            type: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            success: function(response) {
+                Swal.fire('Success!', `Blood bank status updated to ${newStatus === 'ENABLED' ? 'Active' : 'Inactive'}`, 'success');
+                loadBloodBanks();
+            },
+            error: function(xhr) {
+                Swal.fire('Error!', 'Failed to update blood bank status', 'error');
+            }
+        });
     }
 </script>
 </body>

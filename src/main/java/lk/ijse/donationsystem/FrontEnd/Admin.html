@@ -23,13 +23,14 @@
         }
 
         /* Sidebar Styles */
+        /* Replace the existing sidebar styles with these */
         .sidebar {
             width: 280px;
             height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
-            background: linear-gradient(180deg, var(--dark-color), #37474f);
+            background: linear-gradient(180deg, #c62828, #b71c1c); /* Dark red gradient */
             color: white;
             transition: all 0.3s;
             z-index: 1000;
@@ -39,6 +40,7 @@
         .sidebar-brand {
             padding: 1.5rem 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for brand */
         }
 
         .sidebar-brand h2 {
@@ -46,15 +48,12 @@
             margin-bottom: 0;
             display: flex;
             align-items: center;
+            color: white;
         }
 
         .sidebar-brand h2 i {
             margin-right: 10px;
-            color: var(--primary-color);
-        }
-
-        .sidebar-menu {
-            padding: 1rem 0;
+            color: white; /* Changed from red to white for contrast */
         }
 
         .sidebar-menu li {
@@ -66,16 +65,16 @@
             display: flex;
             align-items: center;
             padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9); /* Brighter text for better readability */
             text-decoration: none;
             transition: all 0.3s;
             border-left: 3px solid transparent;
         }
 
         .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.2); /* Darker red on hover/active */
             color: white;
-            border-left: 3px solid var(--primary-color);
+            border-left: 3px solid white; /* Changed from red to white for contrast */
         }
 
         .sidebar-menu a i {
@@ -83,14 +82,15 @@
             font-size: 1.1rem;
             width: 20px;
             text-align: center;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .sidebar-menu .badge {
             position: absolute;
             right: 20px;
-            background-color: var(--primary-color);
+            background-color: #ff5252; /* Brighter red for badges */
+            color: white;
         }
-
         /* Main Content Styles */
         .main-content {
             margin-left: 280px;
@@ -297,14 +297,14 @@
             </a>
         </li>
         <li>
-            <a href="blood-requests.html">
-                <i class="fas fa-tint"></i> Blood Requests
+            <a href="BloodBank.html">
+                <i class="fas fa-tint"></i> Blood Banks
                 <span class="badge rounded-pill bg-danger ms-auto">3</span>
             </a>
         </li>
         <li>
-            <a href="BloodBank.html">
-                <i class="fas fa-hospital"></i> Blood Banks
+            <a href="New_Donation.html">
+                <i class="fas fa-hospital"></i> Donation
             </a>
         </li>
         <li>
@@ -313,8 +313,8 @@
             </a>
         </li>
         <li>
-            <a href="reports.html">
-                <i class="fas fa-chart-bar"></i> Reports
+            <a href="request">
+                <i class="fas fa-chart-bar"></i> Blood Requests
             </a>
         </li>
         <li>

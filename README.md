@@ -119,7 +119,6 @@ src/
 
 🚀 How to Run
 
-
 Clone the repository
 
 Configure MySQL in application.properties

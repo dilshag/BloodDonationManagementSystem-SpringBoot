@@ -3,250 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management | Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>User Management | LifeSaver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --danger-color: #f72585;
-            --warning-color: #f8961e;
-            --info-color: #4895ef;
-            --dark-color: #1E2A47;
-            --light-color: #f8f9fa;
-            --gray-color: #6c757d;
-            --white-color: #ffffff;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --white: #fff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
         }
 
         .navbar {
-            background-color: var(--dark-color);
-            color: var(--white-color);
+            background-color: var(--primary);
+            color: var(--white);
             padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--box-shadow);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
         }
 
-        .navbar-brand {
+        .navbar h2 {
+            margin: 0;
             font-size: 1.5rem;
             font-weight: 600;
+        }
+
+        .navbar button {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 1rem;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .navbar-brand i {
-            font-size: 1.25rem;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            gap: 8px;
             padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: var(--white-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--white-color);
-            color: var(--white-color);
-        }
-
-        .btn-outline:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .navbar button:hover {
+            background-color: var(--primary-dark);
         }
 
         .container {
             max-width: 1200px;
             margin: 2rem auto;
-            padding: 0 1rem;
+            padding: 0 2rem;
         }
 
-        .card {
-            background-color: var(--white-color);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .card-header {
-            padding: 1.25rem 1.5rem;
-            background-color: var(--dark-color);
-            color: var(--white-color);
+        .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 2rem;
         }
 
-        .card-title {
-            font-size: 1.25rem;
+        .dashboard-title {
+            font-size: 1.8rem;
             font-weight: 600;
-            margin: 0;
+            color: var(--primary);
         }
 
-        .card-body {
-            padding: 1.5rem;
+        .requests-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
 
-        .table-responsive {
-            overflow-x: auto;
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .table {
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
         }
 
-        .table th,
-        .table td {
-            padding: 1rem;
+        th, td {
+            padding: 1rem 1.5rem;
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border);
         }
 
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #495057;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
+        th {
+            font-weight: 500;
+            color: var(--text-light);
+            background-color: var(--secondary);
         }
 
-        .table tr:hover {
-            background-color: #f8f9fa;
+        tr:hover {
+            background-color: #f5f5f5;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 0.35rem 0.65rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 1;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 10rem;
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        .badge-success {
-            background-color: #d1fae5;
-            color: #065f46;
+        .status-enabled {
+            background-color: #e8f5e9;
+            color: var(--success);
         }
 
-        .badge-warning {
-            background-color: #fef3c7;
-            color: #92400e;
+        .status-disabled {
+            background-color: #ffebee;
+            color: var(--danger);
         }
 
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .badge-info {
-            background-color: #dbeafe;
-            color: #1e40af;
+        .edit-btn {
+            background-color: #2196F3;
+            color: var(--white);
         }
 
-        .action-btns {
+        .edit-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .delete-btn {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .enable-btn {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .enable-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .disable-btn {
+            background-color: var(--warning);
+            color: var(--white);
+        }
+
+        .disable-btn:hover {
+            background-color: #F57C00;
+        }
+
+        .loading {
             display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
         }
 
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            border-radius: 0.25rem;
-        }
-
-        .btn-edit {
-            background-color: var(--info-color);
-            color: var(--white-color);
-        }
-
-        .btn-edit:hover {
-            background-color: #3b82f6;
-        }
-
-        .btn-delete {
-            background-color: var(--danger-color);
-            color: var(--white-color);
-        }
-
-        .btn-delete:hover {
-            background-color: #e11d48;
-        }
-
-        .btn-enable {
-            background-color: var(--success-color);
-            color: var(--white-color);
-        }
-
-        .btn-enable:hover {
-            background-color: #0ea5e9;
-        }
-
-        .btn-disable {
-            background-color: var(--warning-color);
-            color: var(--white-color);
-        }
-
-        .btn-disable:hover {
-            background-color: #ea580c;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 1.5rem;
-            height: 1.5rem;
-            border: 0.25rem solid rgba(0, 0, 0, 0.1);
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top-color: var(--primary-color);
+            border-top-color: var(--primary);
             animation: spin 1s ease-in-out infinite;
         }
 
@@ -254,145 +210,60 @@
             to { transform: rotate(360deg); }
         }
 
-        .text-center {
-            text-align: center;
-        }
-
-        .empty-state {
-            padding: 3rem 1rem;
-            text-align: center;
-            color: var(--gray-color);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
-        }
-
-        .status-toggle {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .status-toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--success-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
         @media (max-width: 768px) {
-            .navbar {
-                padding: 0.75rem 1rem;
+            .container {
+                padding: 0 1rem;
             }
 
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-                padding: 1rem;
+            table {
+                display: block;
+                overflow-x: auto;
             }
 
-            .table th,
-            .table td {
-                padding: 0.75rem 0.5rem;
-            }
-
-            .action-btns {
-                flex-direction: column;
-                gap: 0.25rem;
+            .action-btn {
+                margin-bottom: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- Navbar with Blood Donation Theme -->
 <div class="navbar">
-    <div class="navbar-brand">
-        <i class="fas fa-users-cog"></i>
-        <span>Admin Dashboard</span>
-    </div>
-    <button class="btn btn-outline" onclick="window.location.href='Admin.html'">
-        <i class="fas fa-arrow-left"></i> Back
+    <h2> <i class="fas fa-heartbeat me-2"></i> LifeSaver</h2>
+    <button onclick="window.location.href='Admin.html'">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
     </button>
 </div>
 
 <div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="fas fa-users"></i> User Management
-            </h2>
-            <button class="btn btn-primary" onclick="showAddUserModal()">
-                <i class="fas fa-plus"></i> Add User
-            </button>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table" id="userTable">
-                    <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            <div class="empty-state">
-                                <div class="loading-spinner"></div>
-                                <p>Loading users...</p>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="dashboard-header">
+        <h2 class="dashboard-title"><i class="fas fa-users"></i> User Management</h2>
     </div>
-</div>
 
-<!-- Add User Modal (hidden by default) -->
-<div id="addUserModal" style="display:none;">
-    <!-- Modal content would go here -->
+    <div class="requests-container">
+        <div class="table-header">
+            <div class="table-title">Registered Users</div>
+        </div>
+        <table id="userTable">
+            <thead>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="userTableBody">
+            <tr>
+                <td colspan="5" class="loading">
+                    <div class="spinner"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -407,90 +278,69 @@
         $.ajax({
             url: "http://localhost:8080/api/v1/user/getAll",
             method: "GET",
-            headers: { "Authorization": `Bearer ${authToken}` },
+            headers: {
+                "Authorization": `Bearer ${authToken}`,
+                "Accept": "application/json"
+            },
             success: function(response) {
                 tableBody.empty();
                 const users = response.data || [];
 
                 if (users.length === 0) {
-                    tableBody.html(`
-                        <tr>
-                            <td colspan="5" class="empty-state">
-                                <i class="fas fa-user-slash"></i>
-                                <p>No users found</p>
-                            </td>
-                        </tr>
-                    `);
+                    tableBody.html('<tr><td colspan="5" style="text-align: center; padding: 2rem;">No users found</td></tr>');
                     return;
                 }
 
                 users.forEach(user => {
-                    const statusBadge = user.status === "ENABLED"
-                        ? `<span class="badge badge-success"><i class="fas fa-check-circle"></i> Enabled</span>`
-                        : `<span class="badge badge-danger"><i class="fas fa-times-circle"></i> Disabled</span>`;
-
-                    const roleBadge = user.role === "ADMIN"
-                        ? `<span class="badge badge-info"><i class="fas fa-user-shield"></i> Admin</span>`
-                        : `<span class="badge"><i class="fas fa-user"></i> User</span>`;
+                    const statusClass = user.status === "ENABLED" ? "status-enabled" : "status-disabled";
 
                     tableBody.append(`
-                        <tr>
-                            <td>${user.email}</td>
-                            <td>${user.name || 'N/A'}</td>
-                            <td>${roleBadge}</td>
-                            <td>${statusBadge}</td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit btn-sm" onclick="editUser('${user.email}')">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn-delete btn-sm" onclick="deleteUser('${user.email}')">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </button>
-                                    ${user.status === "ENABLED"
-                        ? `<button class="btn btn-disable btn-sm" onclick="updateUserStatus('${user.email}', 'DISABLED')">
-                                            <i class="fas fa-ban"></i> Disable
-                                          </button>`
-                        : `<button class="btn btn-enable btn-sm" onclick="updateUserStatus('${user.email}', 'ENABLED')">
-                                            <i class="fas fa-check"></i> Enable
-                                          </button>`
-                    }
-                                </div>
-                            </td>
-                        </tr>
-                    `);
-                });
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to load users. Please try again.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-                tableBody.html(`
                     <tr>
-                        <td colspan="5" class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Failed to load users</p>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${user.name || 'N/A'}</td>
+                        <td>${user.role || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${user.status || 'N/A'}</span></td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editUser('${user.email}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteUser('${user.email}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            ${user.status === "ENABLED" ?
+                        `<button class="action-btn disable-btn" onclick="updateUserStatus('${user.email}', 'DISABLED')">
+                                <i class="fas fa-ban"></i> Disable
+                            </button>` :
+                        `<button class="action-btn enable-btn" onclick="updateUserStatus('${user.email}', 'ENABLED')">
+                                <i class="fas fa-check-circle"></i> Enable
+                            </button>`}
                         </td>
                     </tr>
                 `);
+                });
+            },
+            error: function(xhr) {
+                tableBody.html('<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 2rem;">Error loading users. Please try again.</td></tr>');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to load users',
+                    confirmButtonColor: 'var(--primary)'
+                });
             }
         });
     }
 
     function deleteUser(email) {
         Swal.fire({
-            title: 'Confirm Deletion',
-            text: `Are you sure you want to delete user ${email}? This action cannot be undone.`,
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: 'var(--danger-color)',
-            cancelButtonColor: 'var(--gray-color)',
+            confirmButtonColor: 'var(--danger)',
+            cancelButtonColor: 'var(--text-light)',
             confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true
+            background: 'var(--white)'
         }).then((result) => {
             if (result.isConfirmed) {
                 const authToken = localStorage.getItem('authToken');
@@ -498,13 +348,16 @@
                 $.ajax({
                     url: `http://localhost:8080/api/v1/user/delete/${email}`,
                     method: "DELETE",
-                    headers: { "Authorization": `Bearer ${authToken}` },
+                    headers: {
+                        "Authorization": `Bearer ${authToken}`,
+                        "Accept": "application/json"
+                    },
                     success: function() {
                         Swal.fire({
                             icon: 'success',
                             title: 'Deleted!',
-                            text: 'The user has been successfully deleted.',
-                            confirmButtonColor: 'var(--primary-color)'
+                            text: 'User has been deleted.',
+                            confirmButtonColor: 'var(--primary)'
                         });
                         getAllUsers();
                     },
@@ -512,8 +365,8 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'Failed to delete user. Please try again.',
-                            confirmButtonColor: 'var(--primary-color)'
+                            text: 'Failed to delete user',
+                            confirmButtonColor: 'var(--primary)'
                         });
                     }
                 });
@@ -522,49 +375,12 @@
     }
 
     function editUser(email) {
-        // In a real implementation, you would fetch the user details first
         Swal.fire({
             title: 'Edit User',
             html: `You are editing user: <b>${email}</b>`,
             icon: 'info',
-            confirmButtonColor: 'var(--primary-color)',
-            showCancelButton: true,
-            cancelButtonColor: 'var(--gray-color)',
-            confirmButtonText: 'Save Changes',
-            cancelButtonText: 'Cancel',
-            html: `
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input1" style="display: block; margin-bottom: 0.5rem;">Email</label>
-                    <input id="swal-input1" class="swal2-input" value="${email}" disabled>
-                </div>
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input2" style="display: block; margin-bottom: 0.5rem;">Name</label>
-                    <input id="swal-input2" class="swal2-input" placeholder="Enter name">
-                </div>
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input3" style="display: block; margin-bottom: 0.5rem;">Role</label>
-                    <select id="swal-input3" class="swal2-input">
-                        <option value="USER">User</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
-                </div>
-            `,
-            preConfirm: () => {
-                return {
-                    name: $('#swal-input2').val(),
-                    role: $('#swal-input3').val()
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Here you would typically make an API call to update the user
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Updated!',
-                    text: 'User details have been updated.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-            }
+            confirmButtonColor: 'var(--primary)',
+            background: 'var(--white)'
         });
     }
 
@@ -573,27 +389,28 @@
         const action = status === "ENABLED" ? "enable" : "disable";
 
         Swal.fire({
-            title: `Confirm ${action}`,
-            text: `Are you sure you want to ${action} user ${email}?`,
+            title: `Are you sure you want to ${action} this user?`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: 'var(--primary-color)',
-            cancelButtonColor: 'var(--gray-color)',
+            confirmButtonColor: 'var(--primary)',
+            cancelButtonColor: 'var(--text-light)',
             confirmButtonText: `Yes, ${action}`,
-            cancelButtonText: 'Cancel',
-            reverseButtons: true
+            background: 'var(--white)'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `http://localhost:8080/api/v1/user/status?email=${email}&status=${status}`,
                     method: "PUT",
-                    headers: { "Authorization": `Bearer ${authToken}` },
+                    headers: {
+                        "Authorization": `Bearer ${authToken}`,
+                        "Accept": "application/json"
+                    },
                     success: function(response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: `User has been ${action}d successfully.`,
-                            confirmButtonColor: 'var(--primary-color)'
+                            text: `User has been ${action}d`,
+                            confirmButtonColor: 'var(--primary)'
                         });
                         getAllUsers();
                     },
@@ -601,64 +418,11 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: `Failed to ${action} user. Please try again.`,
-                            confirmButtonColor: 'var(--primary-color)'
+                            text: `Failed to ${action} user`,
+                            confirmButtonColor: 'var(--primary)'
                         });
                     }
                 });
-            }
-        });
-    }
-
-    function showAddUserModal() {
-        // This would show a modal for adding new users
-        Swal.fire({
-            title: 'Add New User',
-            icon: 'info',
-            confirmButtonColor: 'var(--primary-color)',
-            showCancelButton: true,
-            cancelButtonColor: 'var(--gray-color)',
-            confirmButtonText: 'Add User',
-            cancelButtonText: 'Cancel',
-            html: `
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input1" style="display: block; margin-bottom: 0.5rem;">Email</label>
-                    <input id="swal-input1" class="swal2-input" placeholder="Enter email">
-                </div>
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input2" style="display: block; margin-bottom: 0.5rem;">Name</label>
-                    <input id="swal-input2" class="swal2-input" placeholder="Enter name">
-                </div>
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input3" style="display: block; margin-bottom: 0.5rem;">Role</label>
-                    <select id="swal-input3" class="swal2-input">
-                        <option value="USER">User</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
-                </div>
-                <div class="form-group" style="text-align: left; margin: 1rem 0;">
-                    <label for="swal-input4" style="display: block; margin-bottom: 0.5rem;">Password</label>
-                    <input id="swal-input4" type="password" class="swal2-input" placeholder="Enter password">
-                </div>
-            `,
-            preConfirm: () => {
-                return {
-                    email: $('#swal-input1').val(),
-                    name: $('#swal-input2').val(),
-                    role: $('#swal-input3').val(),
-                    password: $('#swal-input4').val()
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Here you would typically make an API call to add the new user
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'New user has been added.',
-                    confirmButtonColor: 'var(--primary-color)'
-                });
-                getAllUsers();
             }
         });
     }
@@ -666,8 +430,6 @@
 
 </body>
 </html>
-
-
 
 
 
@@ -921,6 +683,6 @@
 </body>
 </html>
 
+
+
 -->
-
-

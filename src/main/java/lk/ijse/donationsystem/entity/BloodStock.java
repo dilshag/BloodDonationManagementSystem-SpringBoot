@@ -41,6 +41,7 @@ public class BloodStock {
     @JoinColumn(name = "inventory_id", nullable = false)
     private BloodInventory inventory;
 
-    @OneToOne(mappedBy = "bloodStock")
+    @OneToOne(mappedBy = "bloodStock", cascade = CascadeType.ALL)
     private BloodDonation donation;
+
 }

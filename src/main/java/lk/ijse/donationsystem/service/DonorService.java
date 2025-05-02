@@ -25,12 +25,14 @@ public interface DonorService {
     String updateDonorStatus(String email, String status);
      String updateDonorProfile(String email, DonorDTO donorDTO);
 
-    // ✅ New Method to Upload Profile Picture
+    //  New Method to Upload Profile Picture
   /*  String uploadProfilePicture(String email, MultipartFile file);*/
   /*  @Transactional
     String disableDonor(String email);
 
     String activateDonor(String email);
 */
+
+    public boolean hasDonorProfile(String email);
 
 }

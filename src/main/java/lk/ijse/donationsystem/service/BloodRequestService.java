@@ -8,19 +8,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BloodRequestService {
-    void createBloodRequest(BloodRequestDTO dto);
-    void approveBloodRequest(UUID requestId);
-    void rejectBloodRequest(UUID requestId);
-    List<BloodRequestDTO> getAllRequests();
+    void createRequest(BloodRequestDTO dto);
+    public void approveRequest(UUID requestId);
+   // void approveRequest(UUID requestId);
+    void rejectRequest(UUID requestId);
     List<BloodRequestDTO> getRequestsByStatus(RequestStatus status);
 
 
-
-   /* void createBloodRequest(BloodRequestDTO dto);
-    List<BloodRequestDTO> getAllBloodRequests();
-    List<BloodRequestDTO> getBloodRequestsByStatus(RequestStatus status);
-
-   // List<BloodRequestDTO> getBloodRequestsByStatus(RequestStatus status);
-
-    BloodRequestDTO getBloodRequestById(UUID id);
-*/}
+    List<BloodRequestDTO> getAllRequests();
+}

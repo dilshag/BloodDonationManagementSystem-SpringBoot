@@ -188,6 +188,10 @@
                             <span id="donorPhone">-</span>
                         </div>
                         <div class="info-item">
+                            <span class="info-label">Id:</span>
+                            <span id="donorId">-</span>
+                        </div>
+                        <div class="info-item">
                             <span class="info-label">Address:</span>
                             <span id="donorAddress">-</span>
                         </div>
@@ -283,6 +287,7 @@
                 // Update profile information
                 document.getElementById('donorName').textContent = donor.name || 'N/A';
                 document.getElementById('donorEmail').textContent = donor.email || 'N/A';
+                document.getElementById('donorId').textContent = donor.id || 'N/A';
                 document.getElementById('donorPhone').textContent = donor.phoneNumber || 'N/A';
                 document.getElementById('donorAddress').textContent = donor.address || 'N/A';
                 document.getElementById('bloodTypeDisplay').textContent = donor.bloodType || '-';
@@ -358,68 +363,3 @@
 </body>
 </html>
 
-
-<!--
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donor Profile</title>
-
-</head>
-
-<body>
-
-<div class="container">
-    <h2>Donor Profile</h2>
-
-    <div id="donorProfileCard"></div>
-
-
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const token = localStorage.getItem("authToken");
-
-        fetch("http://localhost:8080/api/v1/donor/profile", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Profile fetch failed");
-                return res.json();
-            })
-            .then(donor => {
-                const card = `
-                    <div class="card">
-                       <img src="http://localhost:8080${donor.profilePictureUrl.replace(/\\/g, "/")}"
-    alt="Donor Image"
-    style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #d44;" />
-  <h3>${donor.name}</h3>
-                        <p>Email: ${donor.email}</p>
-                        <p>Phone: ${donor.phoneNumber}</p>
-                        <p>Address: ${donor.address}</p>
-                        <p>Blood Type: ${donor.bloodType}</p>
-                    </div>
-                `;
-                document.getElementById("donorProfileCard").innerHTML = card;
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("Unable to load donor profile.");
-            });
-    });
-</script>
-
-</body>
-
-</html>
-
-
-
--->

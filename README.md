@@ -127,3 +127,6 @@ Run the Spring Boot application
 
 Access the frontend via browser (HTML + AJAX)
 
+
+YOUTUBE LINK
+https://youtu.be/yN35Aw6rSpM?si=Rf1ead9CSgHF_gSI

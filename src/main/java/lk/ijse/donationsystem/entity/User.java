@@ -42,13 +42,13 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status = UserStatus.ENABLED;  // Default to ENABLED
+    private UserStatus status = UserStatus.ENABLED;
 
     //NOTIFICATION WLTA DMME
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
 
-    // private boolean enabled = true; // Default enabled
+    // private boolean enabled = true;
 }
 

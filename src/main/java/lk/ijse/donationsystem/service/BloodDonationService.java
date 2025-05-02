@@ -9,11 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BloodDonationService {
-    void createDonation(DonationRequestDTO dto);
+    /*void createDonation(DonationRequestDTO dto);*/
     List<BloodDonationDTO> getAllDonations();
     List<BloodDonationDTO> filterDonations(UUID donorId, UUID bloodBankId, BloodType bloodType, String sort);
-
-
+    void createDonation(DonationRequestDTO dto);
 }
 
 

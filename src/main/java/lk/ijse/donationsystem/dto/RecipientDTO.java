@@ -16,29 +16,29 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RecipientDTO {
 
-   // private UUID id;  // UUID as String, it will be mapped to the User entity
+   // private UUID id;  //
 
- //   private String bloodBankId;  // BloodBank UUID as String
+ //   private String bloodBankId;
  private String bloodBankName;
-    private BloodType bloodType;  // The blood type of the recipient
+    private BloodType bloodType;
 
-    private int quantity;  // The quantity of blood the recipient needs
+    private int quantity;
 
-    private LocalDate requestedDate;  // The date when the blood was requested
+    private LocalDate requestedDate;
 
-    private RequestStatus status;  // The status of the request (PENDING, APPROVED, REJECTED)
+    private RequestStatus status;
 
-    private String contactNumber;  // The recipient's contact number
+    private String contactNumber;
 
-    private String address;  // The recipient's address
+    private String address;
 
-    private String nic;  // National Identity Card number for validation and record keeping
+    private String nic;
 
-    private LocalDate dateOfBirth;  // The recipient's date of birth (to ensure age eligibility)
+    private LocalDate dateOfBirth;
 
-    private String medicalCondition;  // The recipient's medical condition
+    private String medicalCondition;
 
-    private String doctorName;  // Doctor's name for verification purposes
+    private String doctorName;
 
-    private String doctorContact;  // Doctor's contact number for verification purposes
+    private String doctorContact;
 }

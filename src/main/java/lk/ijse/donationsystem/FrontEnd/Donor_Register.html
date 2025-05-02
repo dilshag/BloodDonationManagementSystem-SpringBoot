@@ -2,170 +2,357 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donor Registration</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Donor Profile Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
-        }
-
-        .register-container {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-            width: 280px;
-            text-align: left;
-        }
-
-        h3 {
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #1e3a8a;
-            margin-bottom: 10px;
-            font-size: 1.4rem;
-            font-weight: 600;
-            text-align: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        .glass-card {
+            width: 90%;
+            max-width: 450px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            z-index: 1;
+            color: white;
+            padding: 1.5rem;
         }
 
         .form-label {
             font-weight: 500;
-            color: #333;
-            font-size: 14px;
+            color: white;
+            margin-bottom: 0.5rem;
         }
 
-        .form-control {
-            height: 30px;
-            font-size: 14px;
-            border-radius: 6px;
-            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ccc;
-            margin-bottom: 8px;
-            padding: 4px 8px;
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
         }
 
-        .btn-primary {
-            background-color: #1e3a8a;
-            border-color: #1e3a8a;
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 0.25rem rgba(230, 57, 70, 0.25);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-donor {
+            background: linear-gradient(135deg, #e63946, #d62839);
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem;
             font-weight: 500;
-            padding: 6px 14px;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            font-size: 14px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
             width: 100%;
+            color: white;
         }
 
-        .btn-primary:hover {
-            background-color: #2563eb;
-            border-color: #1e40af;
-            transform: scale(1.05);
+        .btn-donor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
         }
 
-        .btn-link {
-            color: #1e3a8a;
-            font-weight: 500;
-            text-decoration: none;
-            font-size: 13px;
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label {
             display: block;
+            padding: 0.6rem;
+            border: 1px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
             text-align: center;
-            margin-top: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
         }
 
-        .btn-link:hover {
-            color: #2563eb;
+        .file-upload-label:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(230, 57, 70, 0.6);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        h2 {
+            color: white;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #e63946;
+            border-radius: 3px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
         }
     </style>
 </head>
 <body>
-<div class="register-container">
-    <h3>Donor Registration</h3>
-    <form id="registerForm">
-        <div class="mb-2">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" required>
-        </div>
-        <div class="mb-2">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" required>
-        </div>
-        <div class="mb-2">
-            <label for="bloodType" class="form-label">Blood Type</label>
-            <select class="form-control" id="bloodType" required>
-                <option value="">Select Blood Type</option>
-                <option value="A+">A_POSITIVE</option>
-                <option value="A-">A_NEGATIVE</option>
-                <option value="B+">B_POSITIVE</option>
-                <option value="B-">B_NEGATIVE</option>
-                <option value="O+">O_POSITIVE</option>
-                <option value="O-">O_NEGATIVE</option>
-                <option value="AB+">AB_POSITIVE</option>
-                <option value="AB-">AB_NEGATIVE</option>
-            </select>
-        </div>
-        <div class="mb-2">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" required>
-        </div>
-        <div class="mb-2">
-            <label for="phoneNumber" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phoneNumber" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
+<div class="container">
+    <div class="glass-card">
+        <h2 class="text-center mb-4">Donor Registration</h2>
+        <form id="donorForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="bloodType" class="form-label">Blood Type</label>
+                <select class="form-select" id="bloodType" name="bloodType" required>
+                    <option value="" disabled selected>Select your blood type</option>
+                    <option value="A_POSITIVE">A+</option>
+                    <option value="A_NEGATIVE">A-</option>
+                    <option value="B_POSITIVE">B+</option>
+                    <option value="B_NEGATIVE">B-</option>
+                    <option value="AB_POSITIVE">AB+</option>
+                    <option value="AB_NEGATIVE">AB-</option>
+                    <option value="O_POSITIVE">O+</option>
+                    <option value="O_NEGATIVE">O-</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address" placeholder="Enter your full address" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="+94 77 123 4567" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Profile Picture</label>
+                <div class="file-upload">
+                    <input type="file" class="file-upload-input" id="image" name="image" accept="image/*" required>
+                    <label for="image" class="file-upload-label">
+                        <span id="fileLabel">Click to upload photo</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-donor">Register Now</button>
+        </form>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function () {
-        $("#registerForm").submit(function (event) {
-            event.preventDefault();
+    const form = document.getElementById('donorForm');
 
-            let name = $("#name").val().trim();
-            let email = $("#email").val().trim();
-            let bloodType = $("#bloodType").val();
-            let address = $("#address").val().trim();
-            let phoneNumber = $("#phoneNumber").val().trim();
+    // Update file upload label
+    document.getElementById('image').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Click to upload photo';
+        document.getElementById('fileLabel').textContent = fileName;
+    });
 
-            if (!name || !email || !bloodType || !address || !phoneNumber) {
-                Swal.fire("Error!", "All fields are required!", "error");
-                return;
-            }
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            let donorData = {
-                name: name,
-                email: email,
-                bloodType: bloodType,
-                address: address,
-                phoneNumber: phoneNumber
-            };
+        const formData = new FormData(form);
+        const token = localStorage.getItem("authToken");
 
-            $.ajax({
-                url: "http://localhost:8080/api/v1/donor/register/profile",
-                type: "POST",
-                contentType: "application/json",
-               /* headers: { "Authorization": `Bearer ${authToken}` },*/
-                data: JSON.stringify(donorData),
-                success: function (response) {
-                    if (response.code === 201) {
-                        Swal.fire("Success!", "Registration successful!", "success")
-                            .then(() => window.location.href = "Donor_Profile.html");
-                    } else {
-                        Swal.fire("Error!", response.message, "error");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX Error:", error);
-                    Swal.fire("Error!", "Registration failed. Please try again.", "error");
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/donor/register", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "Authorization": `Bearer ${token}`
                 }
             });
-        });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Registration Successful!',
+                    text: result,
+                    background: '#1e1e2d',
+                    color: 'white',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.location.href = "Donor_Profile.html";
+            } else {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Registration Failed',
+                    text: result,
+                    background: '#1e1e2d',
+                    color: 'white'
+                });
+            }
+        } catch (error) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while submitting the form',
+                background: '#1e1e2d',
+                color: 'white'
+            });
+        }
     });
 </script>
 </body>
 </html>
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Donor Profile Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 rounded-4">
+        <h2 class="text-center mb-4">Create Donor Profile</h2>
+        <form id="donorForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="bloodType" class="form-label">Blood Type</label>
+                <select class="form-select" id="bloodType" name="bloodType" required>
+                    <option value="">Select</option>
+                    <option value="A_POSITIVE">A+</option>
+                    <option value="A_NEGATIVE">A-</option>
+                    <option value="B_POSITIVE">B+</option>
+                    <option value="B_NEGATIVE">B-</option>
+                    <option value="AB_POSITIVE">AB+</option>
+                    <option value="AB_NEGATIVE">AB-</option>
+                    <option value="O_POSITIVE">O+</option>
+                    <option value="O_NEGATIVE">O-</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Profile Picture</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+
+        <div class="alert mt-3 d-none" id="responseMessage"></div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('donorForm');
+    const responseMessage = document.getElementById('responseMessage');
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const token = localStorage.getItem("authToken"); // get the token
+
+        try {
+            const res = await fetch("http://localhost:8080/api/v1/donor/register", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const text = await res.text();
+
+           /* if (res.ok) {
+                responseMessage.className = "alert alert-success";
+                responseMessage.textContent = text;
+            } else {
+                responseMessage.className = "alert alert-danger";
+                responseMessage.textContent = text;
+            }*/
+            if (res.ok) {
+                responseMessage.className = "alert alert-success";
+                responseMessage.textContent = text;
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = "login.html"; // 🔁 change this to your actual profile page
+                }, 1500); // 1.5s delay to show success message
+            } else {
+                responseMessage.className = "alert alert-danger";
+                responseMessage.textContent = text;
+            }
+
+
+            responseMessage.classList.remove('d-none');
+
+        } catch (err) {
+            responseMessage.className = "alert alert-danger";
+            responseMessage.textContent = "Error submitting the form.";
+            responseMessage.classList.remove('d-none');
+        }
+    });
+
+</script>
+
+</body>
+</html>
+-->

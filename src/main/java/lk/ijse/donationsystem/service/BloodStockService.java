@@ -1,4 +1,3 @@
-/*
 package lk.ijse.donationsystem.service;
 
 import jakarta.transaction.Transactional;
@@ -8,7 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BloodStockService {
-    @Transactional
+    List<BloodStockDTO> getStockByBloodBankName(String name);
+  /*  @Transactional
     String addBloodStock(BloodStockDTO bloodStockDTO);
 
     @Transactional
@@ -20,5 +20,4 @@ public interface BloodStockService {
     BloodStockDTO getBloodStockById(UUID stockId);
 
     List<BloodStockDTO> getAllBloodStock();
-}
-*/
+*/}

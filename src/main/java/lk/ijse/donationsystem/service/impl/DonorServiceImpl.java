@@ -65,51 +65,10 @@ public class DonorServiceImpl implements DonorService {
                 .toList();
     }
 
-    /* @Transactional
-     @Override
-     public String saveDonor(DonorDTO donorDTO) {
-       *//*  // Check if the user exists
-        User user = userRepository.findByEmail(donorDTO.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
-
-        // Set the user's name if it's not already set
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(donorDTO.getName());
-        }
-*//*
-        // Get authenticated user's email
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String loggedInEmail = authentication.getName();
-
-        // Check if the email in request matches logged-in user
-        if (!loggedInEmail.equals(donorDTO.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only create your own donor profile.");
-        }
-
-        // Check if the user exists
-        User user = userRepository.findByEmail(loggedInEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first."));
-
-        // Check if the donor profile already exists
-        if (donorRepository.findByEmail(loggedInEmail) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor profile already exists.");
-        }
-
-        // Convert DonorDTO to Donor entity
-        Donor donor = modelMapper.map(donorDTO, Donor.class);
-
-        // Set user reference and donor status
-        donor.setUser(user);
-        user.setDonor(donor);
-
-        donor.setStatus(DonorStatus.ACTIVE);
-
-        // Save donor
-        donorRepository.save(donor);
-
-        return "Donor registered successfully.";
+    @Override
+    public boolean hasDonorProfile(String email) {
+        return donorRepository.findByEmail(email) != null;
     }
-*/
 
 
 
@@ -157,7 +116,7 @@ public class DonorServiceImpl implements DonorService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Donor profile already exists.");
         }
 
-        // ✅ Map DTO → Entity
+        //  Map DTO → Entity
         Donor donor = modelMapper.map(donorDTO, Donor.class);
 
         // Set the user (relationship binding)
@@ -167,58 +126,23 @@ public class DonorServiceImpl implements DonorService {
         // Set active status
         donor.setStatus(DonorStatus.ACTIVE);
 
-        // ✅ Set profile picture URL from DTO
+        //  Set profile picture URL from DTO
         donor.setProfilePictureUrl(donorDTO.getProfilePictureUrl());
 
         // Save
         donorRepository.save(donor);
 
 //NOTIFICATION WLATA
-// 👉 Fetch the admin user
+//  Fetch the admin user
         User adminUser = userService.getAdminUser();
 //NOTIFICATION WLATA
-// 👉 Send a notification to the admin
+//  Send a notification to the admin
         notificationService.notifyDonorAdded(adminUser, donor); // not "savedDonor", because you already have "donor"
 
 
         return "Donor registered successfully.";
     }
 
-
-/*
-    @Transactional
-    @Override
-    public String saveDonor(DonorDTO donorDTO) {
-        // Check if user exists for the given email
-        User user = userRepository.findByEmail(donorDTO.getEmail());
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found. Register first.");
-        }
-
-
-        // If user is found, set the name for user if not already set (for new donor)
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(donorDTO.getName()); // Set the name if it's not set
-        }
-
-        // Convert DonorDTO to Donor entity
-        Donor donor = modelMapper.map(donorDTO, Donor.class);
-
-        // Set the user reference
-        donor.setUser(user);
-        user.setDonor(donor);
-
-        // Set default Donor Status to ACTIVE
-        //Donor donor = modelMapper.map(donorDTO, Donor.class);
-        donor.setUser(user);
-        donor.setStatus(DonorStatus.ACTIVE);
-
-
-        // Save donor
-        donorRepository.save(donor);
-
-        return "Donor registered successfully.";
-    }*/
 
     @Transactional
     @Override
@@ -237,12 +161,12 @@ public class DonorServiceImpl implements DonorService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donor not found.");
         }
 
-        // ✅ Update the User's Name (if provided)
+        //  Update the User's Name (if provided)
         if (donorDTO.getName() != null && !donorDTO.getName().isEmpty()) {
             donor.getUser().setName(donorDTO.getName());  // Update User's name
         }
 
-        // ✅ Update Donor's Phone & Address
+        //  Update Donor's Phone & Address
         if (donorDTO.getPhoneNumber() != null) {
             donor.setPhoneNumber(donorDTO.getPhoneNumber());
         }
@@ -325,6 +249,7 @@ public class DonorServiceImpl implements DonorService {
                 .orElseThrow(() -> new RuntimeException("Donor not found for email: " + email));
 
         return new DonorProfileDTO(
+                donor.getId(),
                 donor.getUser().getName(),
                 donor.getEmail(),
                 donor.getPhoneNumber(),

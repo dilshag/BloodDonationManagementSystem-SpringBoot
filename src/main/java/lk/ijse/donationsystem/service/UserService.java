@@ -23,4 +23,6 @@ public interface UserService {
   //  void updateUserStatus(String email, boolean enabled);
 
     void updateUserStatus(String email, UserStatus status);
+
+    UserDTO findByEmail(String email);
 }

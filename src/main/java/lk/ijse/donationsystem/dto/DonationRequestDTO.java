@@ -17,4 +17,6 @@ public class DonationRequestDTO {
     private int quantity;
     private LocalDate donatedDate;
     private BloodType bloodType;
+
 }
+

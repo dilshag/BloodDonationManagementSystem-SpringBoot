@@ -131,5 +131,11 @@ public List<UserDTO> getAllUsers() {
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
     }
 
+    @Override
+    public UserDTO findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return modelMapper.map(user, UserDTO.class);
+    }
 
 }

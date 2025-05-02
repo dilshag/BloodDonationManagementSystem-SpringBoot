@@ -19,10 +19,10 @@ import java.util.UUID;
 public class Donor {
 
     @Id
-    private UUID id; // Uses the same UUID as the User entity
+    private UUID id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @MapsId // Ensures that this entity shares the same primary key as User
+    @MapsId // userge primary key ekma use karanawa me entity eka
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -43,9 +43,9 @@ public class Donor {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DonorStatus status = DonorStatus.ACTIVE; // Default status (ACTIVE or INACTIVE)
+    private DonorStatus status = DonorStatus.ACTIVE;
 
-    // ✅ New field for profile picture
+
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 

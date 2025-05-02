@@ -121,4 +121,10 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO(200, "User status updated successfully", null));
     }*/
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        UserDTO user = userService.findByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+
 }

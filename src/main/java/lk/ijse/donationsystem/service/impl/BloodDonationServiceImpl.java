@@ -4,14 +4,12 @@ import lk.ijse.donationsystem.BloodType;
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
 import lk.ijse.donationsystem.dto.DonationRequestDTO;
 import lk.ijse.donationsystem.entity.*;
-import lk.ijse.donationsystem.repo.BloodBankRepository;
-import lk.ijse.donationsystem.repo.BloodDonationRepository;
-import lk.ijse.donationsystem.repo.BloodInventoryRepository;
-import lk.ijse.donationsystem.repo.DonorRepository;
+import lk.ijse.donationsystem.repo.*;
 import lk.ijse.donationsystem.service.BloodDonationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -34,7 +32,15 @@ public class BloodDonationServiceImpl implements BloodDonationService {
     private BloodDonationRepository donationRepository;
 
     @Autowired
+    private  BloodStockRepository stockRepo;
+
+
+    @Autowired
     private ModelMapper modelMapper;
+
+
+    @Override
+    @Transactional
 
     public void createDonation(DonationRequestDTO dto) {
 
@@ -47,13 +53,29 @@ public class BloodDonationServiceImpl implements BloodDonationService {
         BloodInventory inventory = inventoryRepository.findByBloodBank(bank)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        BloodStock stock = new BloodStock();
-        stock.setBloodType(dto.getBloodType());
-        stock.setQuantity(dto.getQuantity());
-        stock.setDonatedDate(dto.getDonatedDate());
-        stock.setExpiryDate(dto.getDonatedDate().plusDays(42));
-        stock.setInventory(inventory);
+        //  Check if a stock already exists for this blood type in this inventory
+        BloodStock stock = stockRepo.findByBloodTypeAndInventory(dto.getBloodType(), inventory)
+                .orElse(null);
 
+        if (stock != null) {
+            //  Update existing stock
+            stock.setQuantity(stock.getQuantity() + dto.getQuantity());
+            stock.setDonatedDate(dto.getDonatedDate()); // optional: set latest donation date
+            stock.setExpiryDate(dto.getDonatedDate().plusDays(42)); // refresh expiry
+        } else {
+            //  Create new stock if not exists
+            stock = new BloodStock();
+            stock.setBloodType(dto.getBloodType());
+            stock.setQuantity(dto.getQuantity());
+            stock.setDonatedDate(dto.getDonatedDate());
+            stock.setExpiryDate(dto.getDonatedDate().plusDays(42));
+            stock.setInventory(inventory);
+
+            // Add to inventory's stock list
+            inventory.getBloodStockList().add(stock);
+        }
+
+        //  Create new donation record
         BloodDonation donation = new BloodDonation();
         donation.setDonor(donor);
         donation.setBloodBank(bank);
@@ -62,10 +84,17 @@ public class BloodDonationServiceImpl implements BloodDonationService {
         donation.setBloodType(dto.getBloodType());
         donation.setBloodStock(stock);
 
-        stock.setDonation(donation); // Link back
+        //  Link back from stock to donation (optional, for traceability)
+        stock.setDonation(donation);
 
+        //  Save both
         donationRepository.save(donation);
+        stockRepo.save(stock); // always save updated stock
+        inventoryRepository.save(inventory);
+
+        System.out.println("Donation recorded: " + dto.getQuantity() + "ml of " + dto.getBloodType());
     }
+
 
     @Override
     public List<BloodDonationDTO> getAllDonations() {
@@ -112,6 +141,60 @@ public class BloodDonationServiceImpl implements BloodDonationService {
     }
 
 }
+
+
+
+   /* @Override
+    public void createDonation(DonationRequestDTO dto) {
+
+        Donor donor = donorRepository.findById(dto.getDonorId())
+                .orElseThrow(() -> new RuntimeException("Donor not found"));
+
+        BloodBank bank = bloodBankRepository.findById(dto.getBloodBankId())
+                .orElseThrow(() -> new RuntimeException("Blood bank not found"));
+
+        BloodInventory inventory = inventoryRepository.findByBloodBank(bank)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        BloodStock stock = new BloodStock();
+        stock.setBloodType(dto.getBloodType());
+        stock.setQuantity(dto.getQuantity());
+        stock.setDonatedDate(dto.getDonatedDate());
+        stock.setExpiryDate(dto.getDonatedDate().plusDays(42));
+        stock.setInventory(inventory);
+
+        // Add stock to inventory list
+        inventory.getBloodStockList().add(stock); // 👈 Link the stock to inventory
+
+        BloodDonation donation = new BloodDonation();
+        donation.setDonor(donor);
+        donation.setBloodBank(bank);
+        donation.setDonationDate(dto.getDonatedDate());
+        donation.setQuantity(dto.getQuantity());
+        donation.setBloodType(dto.getBloodType());
+        donation.setBloodStock(stock);
+
+        stock.setDonation(donation); // Link back
+
+        donationRepository.save(donation);
+
+        // Save updated inventory (with new stock added)
+        inventoryRepository.save(inventory);
+        System.out.println("Creating donation for donor: " + dto.getDonorId());
+        System.out.println("Blood type: " + dto.getBloodType());
+        System.out.println("Quantity: " + dto.getQuantity());
+
+    }*/
+
+
+
+
+
+
+
+
+
+
 
 
 

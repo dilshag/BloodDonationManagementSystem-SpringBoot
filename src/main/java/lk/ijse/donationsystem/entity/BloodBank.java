@@ -32,10 +32,10 @@ public class BloodBank {
     private String location;
 
     @Column(length = 20)
-    private String phoneNumber; // New field for phone number
+    private String phoneNumber;
 
     @Column(length = 100)
-    private String email;       // New field for email
+    private String email;
 
     @Enumerated(EnumType.STRING)
     private BloodBankStatus status = BloodBankStatus.ENABLED;
@@ -46,6 +46,6 @@ public class BloodBank {
     private BloodInventory bloodInventory;
 
     @OneToMany(mappedBy = "bloodBank", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BloodDonation> bloodDonations;  // If you have Blood Donations entity
+    private List<BloodDonation> bloodDonations;
 
 }

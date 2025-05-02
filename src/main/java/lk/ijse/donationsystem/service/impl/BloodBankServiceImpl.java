@@ -13,7 +13,9 @@ import lk.ijse.donationsystem.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public class BloodBankServiceImpl implements BloodBankService {
 
         // bloodBank.setStatus(bloodBankDTO.getStatus());
 
-        // Link BloodInventory
+        //  BloodInventory eka link krnna dmma
         BloodInventory inventory = new BloodInventory();
         inventory.setBloodBank(bloodBank);      // Set FK
         bloodBank.setBloodInventory(inventory); // Set bi-directional mapping
@@ -63,10 +65,10 @@ public class BloodBankServiceImpl implements BloodBankService {
         // Optional: bloodInventoryRepository.save(inventory); → only if not using Cascade
 
 //NOTIFICATION
-        // 🔔 Fetch admin user
+        //  Fetch admin user
         User adminUser = userService.getAdminUser();
 
-        // 🔔 Send notification to admin
+        //  Send notification to admin
         notificationService.notifyBloodBankAdded(adminUser, bloodBank);
 // notificationService.notifyBloodBankAdded(adminUser, savedBank);
 
@@ -134,6 +136,21 @@ public class BloodBankServiceImpl implements BloodBankService {
         return activeBanks.stream()
                 .map(bank -> new BloodBankDTO(bank.getId(), bank.getName(), bank.getLocation(),bank.getPhoneNumber(),bank.getEmail(), bank.getStatus()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getAllBloodBankNames() {
+        return bloodBankRepository.findAll()
+                .stream()
+                .map(BloodBank::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BloodBankDTO getBloodBankByName(String name) {
+        BloodBank bloodBank = bloodBankRepository.findByName(name)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Blood bank not found"));
+        return modelMapper.map(bloodBank, BloodBankDTO.class);
     }
 
 }

@@ -7,7 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DonorRepository extends JpaRepository<Donor, UUID> {
-    Donor findByEmail(String email);  // Example search by email
-    boolean existsByEmail(String email);  // Check if email exists
+    Donor findByEmail(String email);
+    boolean existsByEmail(String email);
     Optional<Donor> findByUserEmail(String email);
+
+
 }

@@ -19,4 +19,7 @@ public interface BloodBankService {
     public String setStatus(UUID id, BloodBankStatus newStatus);
 
     public List<BloodBankDTO> getAllActiveBloodBanks();
+
+    List<String> getAllBloodBankNames();
+    BloodBankDTO getBloodBankByName(String name);
 }

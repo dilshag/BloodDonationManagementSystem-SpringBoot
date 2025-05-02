@@ -1,82 +1,77 @@
-/*
 package lk.ijse.donationsystem.service.impl;
 
-import jakarta.transaction.Transactional;
-import lk.ijse.donationsystem.dto.BloodRequestDTO;
-import lk.ijse.donationsystem.entity.BloodRequest;
-import lk.ijse.donationsystem.entity.BloodBank;
+
 import lk.ijse.donationsystem.RequestStatus;
-import lk.ijse.donationsystem.entity.BloodStock;
-import lk.ijse.donationsystem.entity.User;
-import lk.ijse.donationsystem.repo.BloodRequestRepository;
-import lk.ijse.donationsystem.repo.BloodBankRepository;
-import lk.ijse.donationsystem.repo.UserRepository;
+import lk.ijse.donationsystem.dto.BloodRequestDTO;
+import lk.ijse.donationsystem.entity.*;
+import lk.ijse.donationsystem.repo.*;
 import lk.ijse.donationsystem.service.BloodRequestService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 @Service
 public class BloodRequestServiceImpl implements BloodRequestService {
 
     @Autowired
-    private BloodRequestRepository bloodRequestRepository;
-
-   */
-/* @Autowired
-    private RecipientRepository recipientRepository;
-*//*
+    private UserRepository userRepository;
 
     @Autowired
     private BloodBankRepository bloodBankRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private BloodRequestRepository bloodRequestRepository;
+
+    @Autowired
+    private BloodInventoryRepository bloodInventoryRepository;
+
+    @Autowired
+    private BloodStockRepository bloodStockRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    @Transactional
     @Override
-    public void createBloodRequest(BloodRequestDTO dto) {
-        // Get currently logged-in user (Recipient)
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User recipient = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public void createRequest(BloodRequestDTO dto) {
 
-        // Find Blood Bank
-        BloodBank bloodBank = bloodBankRepository.findByName(dto.getBloodBankName())
+        //  recipient
+        User recipient = userRepository.findById(dto.getRecipientId())
+                .orElseThrow(() -> new RuntimeException("Recipient not found"));
+
+        // blood bank
+        BloodBank bank = bloodBankRepository.findById(dto.getBloodBankId())
                 .orElseThrow(() -> new RuntimeException("Blood Bank not found"));
 
-        // Map DTO → Entity
-        BloodRequest request = modelMapper.map(dto, BloodRequest.class);
+        // 3. Map and create BloodRequest
+        BloodRequest request = new BloodRequest();
+        request.setBloodType(dto.getBloodType());
+        request.setQuantity(dto.getQuantity());
+        request.setMedicalCondition(dto.getMedicalCondition());
+        request.setContactNumber(dto.getContactNumber());
+        request.setRequestedDate(LocalDate.now());
+        if (dto.getRequestStatus() == null) {
+            request.setRequestStatus(RequestStatus.PENDING);
+        }
 
-        // Manually set fields not in DTO
-        request.setId(UUID.randomUUID());
-        request.setRequestStatus(RequestStatus.PENDING);
-        request.setRequestDate(LocalDateTime.now());
+       // request.setRequestStatus(RequestStatus.PENDING); // default value
         request.setRecipient(recipient);
-        request.setBloodBank(bloodBank);
+        request.setBloodBank(bank);
 
-        // Save
+        // 4. Save
         bloodRequestRepository.save(request);
-
-
-
     }
 
-
-
-
     @Override
-    @Transactional
-    public void approveBloodRequest(UUID requestId) {
+    public void approveRequest(UUID requestId) {
         BloodRequest request = bloodRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
@@ -84,24 +79,39 @@ public class BloodRequestServiceImpl implements BloodRequestService {
             throw new RuntimeException("Request already processed");
         }
 
-        BloodStock stock = bloodStockRepository.findByBloodTypeAndBloodBank(
-                request.getBloodType(), request.getBloodBank());
+        // Get inventory for blood bank
+        BloodInventory inventory = bloodInventoryRepository.findByBloodBank(request.getBloodBank())
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        if (stock == null || stock.getQuantity() < request.getQuantity()) {
-            throw new RuntimeException("Insufficient stock");
+        // Filter blood stock for matching blood type
+        Optional<BloodStock> matchingStock = inventory.getBloodStockList().stream()
+                .filter(stock -> stock.getBloodType().equals(request.getBloodType()))
+                .findFirst();
+
+        if (matchingStock.isEmpty()) {
+            throw new RuntimeException("Requested blood type not available in stock");
         }
 
-        stock.setQuantity(stock.getQuantity() - request.getQuantity());
-        bloodStockRepository.save(stock);
+        BloodStock stock = matchingStock.get();
 
+        if (stock.getQuantity() < request.getQuantity()) {
+            throw new RuntimeException("Not enough stock available");
+        }
+
+        // Reduce stock
+        stock.setQuantity(stock.getQuantity() - request.getQuantity());
+
+        // Update status
         request.setRequestStatus(RequestStatus.APPROVED);
-        request.setApprovedDate(LocalDateTime.now());
+
+        // Save all
+        bloodStockRepository.save(stock);
         bloodRequestRepository.save(request);
     }
 
+
     @Override
-    @Transactional
-    public void rejectBloodRequest(UUID requestId) {
+    public void rejectRequest(UUID requestId) {
         BloodRequest request = bloodRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
@@ -110,27 +120,30 @@ public class BloodRequestServiceImpl implements BloodRequestService {
         }
 
         request.setRequestStatus(RequestStatus.REJECTED);
-        request.setApprovedDate(LocalDateTime.now());
         bloodRequestRepository.save(request);
     }
 
+
     @Override
+    public List<BloodRequestDTO> getRequestsByStatus(RequestStatus requestStatus) {
+        List<BloodRequest> requests = bloodRequestRepository.findByRequestStatus(requestStatus);
+        return requests.stream()
+                .map(request -> modelMapper.map(request, BloodRequestDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
     public List<BloodRequestDTO> getAllRequests() {
-        return bloodRequestRepository.findAll().stream()
-                .map(req -> modelMapper.map(req, BloodRequestDTO.class))
+        List<BloodRequest> requests = bloodRequestRepository.findAll();
+        return requests.stream()
+                .map(request -> modelMapper.map(request, BloodRequestDTO.class))
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public List<BloodRequestDTO> getRequestsByStatus(RequestStatus status) {
-        return bloodRequestRepository.findByRequestStatus(status).stream()
-                .map(req -> modelMapper.map(req, BloodRequestDTO.class))
-                .collect(Collectors.toList());
-    }
-
-
-
 
 
 }
-*/
+
+
+
+
+

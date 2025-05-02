@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/bloodbanks")
-@CrossOrigin(origins = "http://localhost:63342")
+
 public class BloodBankController {
 
     private final BloodBankService bloodBankService;
@@ -84,6 +84,17 @@ public class BloodBankController {
     public ResponseEntity<List<BloodBankDTO>> getAllActiveBloodBanks() {
         List<BloodBankDTO> activeBloodBanks = bloodBankService.getAllActiveBloodBanks();
         return ResponseEntity.ok(activeBloodBanks);
+    }
+
+
+    @GetMapping("/names")
+    public ResponseEntity<List<String>> getBloodBankNames() {
+        return ResponseEntity.ok(bloodBankService.getAllBloodBankNames());
+    }
+
+    @GetMapping("/by-name")
+    public ResponseEntity<BloodBankDTO> getBloodBankByName(@RequestParam String name) {
+        return ResponseEntity.ok(bloodBankService.getBloodBankByName(name));
     }
 }
 

@@ -33,7 +33,7 @@ public class BloodInventory {
     private BloodBank bloodBank;
 
     @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BloodStock> bloodStockList = new ArrayList<>(); // Initialize list
+    private List<BloodStock> bloodStockList = new ArrayList<>();
 
     /*public void addBloodStock(BloodStock bloodStock) {
         this.bloodStockList.add(bloodStock);

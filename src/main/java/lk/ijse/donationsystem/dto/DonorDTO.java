@@ -21,7 +21,7 @@ public class DonorDTO {
     private String phoneNumber;
     private DonorStatus status;
 
-    // ✅ New field for profile picture
+
     private String profilePictureUrl;
 
 }

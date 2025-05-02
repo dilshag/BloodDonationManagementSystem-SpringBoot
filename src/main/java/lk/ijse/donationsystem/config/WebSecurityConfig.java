@@ -83,6 +83,7 @@ public class WebSecurityConfig {
                       //  .requestMatchers("/api/v1/donor/**").hasAuthority("DONOR") // Donor only
                         .requestMatchers("/api/v1/donor/**").hasAnyAuthority("DONOR","ADMIN") // Donor only
                         .requestMatchers("/api/v1/recipients/**").hasAuthority("RECIPIENT") // ✅ Add this line
+                        .requestMatchers("/api/v1/donations/createDonation").hasAuthority("DONOR") // 🔒 Only donors can access donation APIs
 
                         .anyRequest().authenticated()
                 )

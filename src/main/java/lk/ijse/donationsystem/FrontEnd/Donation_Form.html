@@ -147,7 +147,7 @@
 
         // Load blood bank names
         function loadDonationBloodBanks() {
-            fetch("http://localhost:8080/api/v1/bloodbanks/names", {
+            fetch("http://localhost:8081/api/v1/bloodbanks/names", {
                 headers: { "Authorization": "Bearer " + token }
             })
                 .then(res => {
@@ -183,7 +183,7 @@
                 return;
             }
 
-            fetch(`http://localhost:8080/api/v1/bloodbanks/by-name?name=${encodeURIComponent(name)}`, {
+            fetch(`http://localhost:8081/api/v1/bloodbanks/by-name?name=${encodeURIComponent(name)}`, {
                 headers: { "Authorization": "Bearer " + token }
             })
                 .then(res => {
@@ -279,7 +279,7 @@
             };
 
             try {
-                const response = await fetch("http://localhost:8080/api/v1/donations/createDonation", {
+                const response = await fetch("http://localhost:8081/api/v1/donations/createDonation", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

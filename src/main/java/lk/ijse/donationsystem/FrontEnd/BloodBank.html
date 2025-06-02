@@ -330,7 +330,7 @@
             };
 
             $.ajax({
-                url: 'http://localhost:8080/api/v1/bloodbanks/add',
+                url: 'http://localhost:8081/api/v1/bloodbanks/add',
                 type: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -361,7 +361,7 @@
             };
 
             $.ajax({
-                url: `http://localhost:8080/api/v1/bloodbanks/update/${bloodBankId}`,
+                url: `http://localhost:8081/api/v1/bloodbanks/update/${bloodBankId}`,
                 type: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -392,7 +392,7 @@
 
         $('#filterInactive').click(function() {
             $.ajax({
-                url: 'http://localhost:8080/api/v1/bloodbanks/all',
+                url: 'http://localhost:8081/api/v1/bloodbanks/all',
                 type: 'GET',
                 headers: {
                     'Authorization': `Bearer ${authToken}`
@@ -427,7 +427,7 @@
     function loadBloodBanks() {
         const authToken = localStorage.getItem('authToken');
         $.ajax({
-            url: 'http://localhost:8080/api/v1/bloodbanks/all',
+            url: 'http://localhost:8081/api/v1/bloodbanks/all',
             type: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -444,7 +444,7 @@
     function loadActiveBloodBanks() {
         const authToken = localStorage.getItem('authToken');
         $.ajax({
-            url: 'http://localhost:8080/api/v1/bloodbanks/active',
+            url: 'http://localhost:8081/api/v1/bloodbanks/active',
             type: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -502,7 +502,7 @@
     function openEditModal(bloodBankId) {
         const authToken = localStorage.getItem('authToken');
         $.ajax({
-            url: `http://localhost:8080/api/v1/bloodbanks/${bloodBankId}`,
+            url: `http://localhost:8081/api/v1/bloodbanks/${bloodBankId}`,
             type: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -535,7 +535,7 @@
             if (result.isConfirmed) {
                 const authToken = localStorage.getItem('authToken');
                 $.ajax({
-                    url: `http://localhost:8080/api/v1/bloodbanks/delete/${bloodBankId}`,
+                    url: `http://localhost:8081/api/v1/bloodbanks/delete/${bloodBankId}`,
                     type: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -555,7 +555,7 @@
     function toggleBloodBankStatus(bloodBankId, newStatus) {
         const authToken = localStorage.getItem('authToken');
         $.ajax({
-            url: `http://localhost:8080/api/v1/bloodbanks/set-status/${bloodBankId}?status=${newStatus}`,
+            url: `http://localhost:8081/api/v1/bloodbanks/set-status/${bloodBankId}?status=${newStatus}`,
             type: 'PUT',
             headers: {
                 'Authorization': `Bearer ${authToken}`

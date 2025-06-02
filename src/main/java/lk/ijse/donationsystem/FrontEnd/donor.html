@@ -274,7 +274,7 @@
         $('#donorTableBody').html('<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
 
         $.ajax({
-            url: 'http://localhost:8080/api/v1/donor/all',
+            url: 'http://localhost:8081/api/v1/donor/all',
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + authToken
@@ -346,7 +346,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `http://localhost:8080/api/v1/donor/update/status/${status}`,
+                    url: `http://localhost:8081/api/v1/donor/update/status/${status}`,
                     method: 'PUT',
                     headers: {
                         'Authorization': 'Bearer ' + authToken,
@@ -377,7 +377,7 @@
         const authToken = localStorage.getItem('authToken');
 
         $.ajax({
-            url: `http://localhost:8080/api/v1/donor/search/${email}`,
+            url: `http://localhost:8081/api/v1/donor/search/${email}`,
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + authToken
@@ -391,7 +391,7 @@
                 $('#donorStatus').text(donor.status || 'N/A');
 
                 if (donor.profilePictureUrl) {
-                    $('#donorProfileImage').attr('src', `http://localhost:8080${donor.profilePictureUrl}`);
+                    $('#donorProfileImage').attr('src', `http://localhost:8081${donor.profilePictureUrl}`);
                 } else {
                     $('#donorProfileImage').attr('src', 'https://via.placeholder.com/150');
                 }

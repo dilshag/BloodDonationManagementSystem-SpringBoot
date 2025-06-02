@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Request | LifeSaver</title>
+    <!-- Add SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --accent-color: #f1c40f;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .blood-type-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .blood-type-tag {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: var(--light-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Make a Blood Request</h2>
+
+    <div class="blood-type-legend">
+        <span class="blood-type-tag">A+</span>
+        <span class="blood-type-tag">A-</span>
+        <span class="blood-type-tag">B+</span>
+        <span class="blood-type-tag">B-</span>
+        <span class="blood-type-tag">AB+</span>
+        <span class="blood-type-tag">AB-</span>
+        <span class="blood-type-tag">O+</span>
+        <span class="blood-type-tag">O-</span>
+    </div>
+
+    <form id="requestForm">
+        <div class="form-group">
+            <label for="userEmail">Your Email:</label>
+            <input type="email" id="userEmail" required placeholder="Enter your registered email">
+        </div>
+
+        <div class="form-group">
+            <label for="bloodType">Blood Type Needed:</label>
+            <select id="bloodType" required>
+                <option value="">Select blood type</option>
+                <option value="A_POSITIVE">A+</option>
+                <option value="A_NEGATIVE">A-</option>
+                <option value="B_POSITIVE">B+</option>
+                <option value="B_NEGATIVE">B-</option>
+                <option value="AB_POSITIVE">AB+</option>
+                <option value="AB_NEGATIVE">AB-</option>
+                <option value="O_POSITIVE">O+</option>
+                <option value="O_NEGATIVE">O-</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Quantity Needed (ml):</label>
+            <input type="number" id="quantity" required min="100" max="2000" placeholder="Minimum 100ml">
+            <small style="color: #666;">Typically 450-500ml per donation</small>
+        </div>
+
+        <div class="form-group">
+            <label for="medicalCondition">Medical Condition/Reason:</label>
+            <textarea id="medicalCondition" required placeholder="Briefly describe why you need blood"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="bloodBankDropdown">Preferred Blood Bank:</label>
+            <select id="bloodBankDropdown" required>
+                <option value="">Loading blood banks...</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="contactNumber">Contact Number:</label>
+            <input type="tel" id="contactNumber" required placeholder="+94 77 123 4567" pattern="[+]{0,1}[0-9\s]{10,15}">
+        </div>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <button type="submit" id="submitBtn">
+            <span id="buttonText">Submit Request</span>
+        </button>
+    </form>
+</div>
+
+<!-- Add SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Required',
+                text: 'Please login first to make a blood request.',
+                confirmButtonColor: '#e74c3c',
+                timer: 3000,
+                timerProgressBar: true
+            }).then(() => {
+                window.location.href = "login.html";
+            });
+            return;
+        }
+
+        let selectedBloodBankId = null;
+        const form = document.getElementById('requestForm');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
+
+        // Load blood bank names
+        function loadBloodBanks() {
+            fetch("http://localhost:8081/api/v1/bloodbanks/names", {
+                headers: { "Authorization": "Bearer " + token }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load blood banks');
+                    return res.json();
+                })
+                .then(names => {
+                    const select = document.getElementById("bloodBankDropdown");
+                    select.innerHTML = '<option value="">Select a blood bank</option>';
+
+                    if (names.length === 0) {
+                        select.innerHTML = '<option value="">No blood banks available</option>';
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'No Blood Banks',
+                            text: 'Currently there are no blood banks available.',
+                            confirmButtonColor: '#e74c3c'
+                        });
+                        return;
+                    }
+
+                    names.forEach(name => {
+                        const option = document.createElement("option");
+                        option.value = name;
+                        option.text = name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading blood banks:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load blood banks. Please try again later.',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                });
+        }
+
+        // Get blood bank ID on name select
+        document.getElementById("bloodBankDropdown").addEventListener("change", function() {
+            const name = this.value;
+            if (!name) {
+                selectedBloodBankId = null;
+                return;
+            }
+
+            fetch(`http://localhost:8081/api/v1/bloodbanks/by-name?name=${encodeURIComponent(name)}`, {
+                headers: { "Authorization": "Bearer " + token }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Blood bank not found');
+                    return res.json();
+                })
+                .then(bank => {
+                    selectedBloodBankId = bank.id;
+                })
+                .catch(err => {
+                    console.error('Error fetching blood bank:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to select blood bank. Please try again.',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                    selectedBloodBankId = null;
+                });
+        });
+
+        // Submit form
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById("userEmail").value.trim();
+            const quantity = parseInt(document.getElementById("quantity").value);
+            const contactNumber = document.getElementById("contactNumber").value.trim();
+
+            // Validate form
+            if (!selectedBloodBankId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Information',
+                    text: 'Please select a blood bank',
+                    confirmButtonColor: '#e74c3c'
+                });
+                return;
+            }
+
+            if (quantity < 100 || quantity > 2000) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Quantity',
+                    text: 'Please enter a valid quantity between 100ml and 2000ml',
+                    confirmButtonColor: '#e74c3c'
+                });
+                return;
+            }
+
+            if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(contactNumber)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Contact',
+                    text: 'Please enter a valid contact number',
+                    confirmButtonColor: '#e74c3c'
+                });
+                return;
+            }
+
+            // Show loading state
+            loadingIndicator.style.display = 'block';
+            submitBtn.disabled = true;
+            buttonText.textContent = 'Processing...';
+
+            try {
+                // Fetch user by email to get ID
+                const userRes = await fetch(`http://localhost:8081/api/v1/user/email/${encodeURIComponent(email)}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!userRes.ok) {
+                    throw new Error("Email not registered. Please use your registered email.");
+                }
+
+                const user = await userRes.json();
+
+                const request = {
+                    bloodType: document.getElementById("bloodType").value,
+                    quantity: quantity,
+                    medicalCondition: document.getElementById("medicalCondition").value.trim(),
+                    contactNumber: contactNumber,
+                    bloodBankId: selectedBloodBankId,
+                    recipientId: user.id
+                };
+
+                // Submit request
+                const requestRes = await fetch("http://localhost:8081/api/v1/requests/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(request)
+                });
+
+                if (!requestRes.ok) {
+                    throw new Error("Failed to submit request. Please try again.");
+                }
+
+                const result = await requestRes.json();
+
+                // Show success message
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Blood request submitted successfully! The blood bank will contact you soon.',
+                    confirmButtonColor: '#2ecc71',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                form.reset();
+                selectedBloodBankId = null;
+
+                // Redirect to dashboard
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                console.error('Submission error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: err.message || "An error occurred. Please try again.",
+                    confirmButtonColor: '#e74c3c'
+                });
+            } finally {
+                loadingIndicator.style.display = 'none';
+                submitBtn.disabled = false;
+                buttonText.textContent = 'Submit Request';
+            }
+        });
+
+        // Initialize form
+        loadBloodBanks();
+    });
+</script>
+</body>
+</html>
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blood Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        input, select, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #userName {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Make a Blood Request</h2>
+
+<form id="requestForm">
+    <label for="userEmail">Your Email:</label>
+    <input type="email" id="userEmail" required placeholder="Enter your email" />
+
+    <label for="bloodType">Blood Type:</label>
+    <select id="bloodType" required>
+        <option value="">Select blood type</option>
+        <option value="B_NEGATIVE">B_NEGATIVE</option>
+        <option value="AB_NEGATIVE">AB_NEGATIVE</option>
+        <option value="O_NEGATIVE">O_NEGATIVE</option>
+        <option value="B_POSITIVE">B_POSITIVE</option>
+        <option value="A_POSITIVE">A_POSITIVE</option>
+        <option value="O_POSITIVE"> O_POSITIVE</option>
+        <option value="A_NEGATIVE">A_NEGATIVE</option>
+        <option value="AB_POSITIVE">AB_POSITIVE</option>
+    </select>
+
+    <label for="quantity">Quantity (ml):</label>
+    <input type="number" id="quantity" required>
+
+    <label for="medicalCondition">Medical Condition:</label>
+    <textarea id="medicalCondition" required></textarea>
+
+    <label for="bloodBankDropdown">Blood Bank:</label>
+    <select id="bloodBankDropdown" required></select>
+
+    <label for="contactNumber">Contact Number:</label>
+    <input type="text" id="contactNumber" required>
+
+    <button type="submit">Submit Request</button>
+</form>
+<script>
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+    }
+
+    let selectedBloodBankId = null;
+
+    // Load blood bank names
+    fetch("http://localhost:8080/api/v1/bloodbanks/names", {
+        headers: { "Authorization": "Bearer " + token }
+    })
+        .then(res => res.json())
+        .then(names => {
+            const select = document.getElementById("bloodBankDropdown");
+            names.forEach(name => {
+                const option = document.createElement("option");
+                option.value = name;
+                option.text = name;
+                select.appendChild(option);
+            });
+        });
+
+    // Get blood bank ID on name select
+    document.getElementById("bloodBankDropdown").addEventListener("change", function () {
+        const name = this.value;
+        fetch(`http://localhost:8080/api/v1/bloodbanks/by-name?name=${encodeURIComponent(name)}`, {
+            headers: { "Authorization": "Bearer " + token }
+        })
+            .then(res => res.json())
+            .then(bank => {
+                selectedBloodBankId = bank.id;
+            });
+    });
+
+    // Submit form
+    document.getElementById("requestForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("userEmail").value;
+
+        if (!selectedBloodBankId) {
+            alert("Please select a blood bank first.");
+            return;
+        }
+
+        // Fetch user by email to get ID
+        fetch(`http://localhost:8080/api/v1/user/email/${encodeURIComponent(email)}`, {
+            headers: { "Authorization": "Bearer " + token }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("User email not found");
+                }
+                return res.json();
+            })
+            .then(user => {
+                const request = {
+                    bloodType: document.getElementById("bloodType").value,
+                    quantity: parseInt(document.getElementById("quantity").value),
+                    medicalCondition: document.getElementById("medicalCondition").value,
+                    contactNumber: document.getElementById("contactNumber").value,
+                    bloodBankId: selectedBloodBankId,
+                    recipientId: user.id  // Use the recipient ID here from the user data
+                };
+
+                return fetch("http://localhost:8080/api/v1/requests/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(request)
+                });
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to submit request");
+                return res.json();
+            })
+            .then(() => {
+                alert("Request submitted successfully!");
+                document.getElementById("requestForm").reset();
+                selectedBloodBankId = null;
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error: " + err.message);
+            });
+    });
+
+</script>
+
+</body>
+</html>-->

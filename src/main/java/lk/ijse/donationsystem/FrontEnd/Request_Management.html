@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Request Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --white: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--white);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background-color: var(--primary-dark);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.pending {
+            border-top: 4px solid var(--warning);
+        }
+
+        .stat-card.approved {
+            border-top: 4px solid var(--success);
+        }
+
+        .stat-card.rejected {
+            border-top: 4px solid var(--danger);
+        }
+
+        .stat-card.total {
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .requests-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--secondary);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            margin-left: 0.5rem;
+            width: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 500;
+            color: var(--text-light);
+            background-color: var(--secondary);
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: var(--warning);
+        }
+
+        .status-approved {
+            background-color: #e8f5e9;
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: var(--danger);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+        }
+
+        .approve-btn {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .approve-btn:hover {
+            background-color: #3d8b40;
+        }
+
+        .reject-btn {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .reject-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .view-btn {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .view-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .detail-label {
+            width: 150px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .detail-value {
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 992px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <i class="fas fa-heartbeat me-2"></i>
+            <h1> LifeSaver</h1>
+        </div>
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="all">All Requests</div>
+            <div class="nav-tab" data-tab="pending">Pending</div>
+            <div class="nav-tab" data-tab="approved">Approved</div>
+            <div class="nav-tab" data-tab="rejected">Rejected</div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Blood Request Dashboard</h2>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search requests...">
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card total">
+            <div class="stat-title">Total Requests</div>
+            <div class="stat-value" id="totalRequests">0</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-title">Pending Requests</div>
+            <div class="stat-value" id="pendingRequests">0</div>
+        </div>
+        <div class="stat-card approved">
+            <div class="stat-title">Approved Requests</div>
+            <div class="stat-value" id="approvedRequests">0</div>
+        </div>
+        <div class="stat-card rejected">
+            <div class="stat-title">Rejected Requests</div>
+            <div class="stat-value" id="rejectedRequests">0</div>
+        </div>
+    </div>
+
+    <div class="requests-container">
+        <div class="table-header">
+            <div class="table-title">Recent Blood Requests</div>
+        </div>
+        <div id="requestsTable">
+            <table>
+                <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Blood Type</th>
+                    <th>Quantity</th>
+                    <th>Recipient</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                <!-- Requests will be loaded here -->
+                </tbody>
+            </table>
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Request Details Modal -->
+<div class="modal" id="requestModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Request Details</h3>
+            <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Details will be loaded here -->
+        </div>
+        <div class="modal-footer" id="modalFooter">
+            <!-- Action buttons will be loaded here -->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        // Base API URL
+        const API_BASE_URL = 'http://localhost:8081/api/v1/requests';
+
+        // DOM Elements
+        const $requestsTableBody = $('#requestsTableBody');
+
+        // Initialize the app
+        loadBloodRequests();
+
+        // Function to load blood requests into the table with proper headers
+        function loadBloodRequests() {
+            showLoading();
+
+            $.ajax({
+                url: `${API_BASE_URL}/all`,
+                type: 'GET',
+                dataType: 'json',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                success: function(data) {
+                    if(data && data.length > 0) {
+                        renderRequestsTable(data);
+                        updateRequestStats(data);
+                    } else {
+                        $requestsTableBody.html('<tr><td colspan="7" style="text-align: center;">No requests found</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching requests:', error);
+                    $requestsTableBody.html('<tr><td colspan="7" style="text-align: center; color: var(--danger);">Error loading requests. Please try again.</td></tr>');
+                },
+                complete: function() {
+                    hideLoading();
+                }
+            });
+        }
+
+        // Function to render requests table
+        function renderRequestsTable(requests) {
+            const rows = requests.map(request => `
+                    <tr>
+                        <td>${request.id ? request.id.substring(0, 8) : 'N/A'}</td>
+                        <td>${request.bloodType || 'N/A'}</td>
+                        <td>${request.quantity || '0'} units</td>
+                        <td>${request.recipientEmail || 'N/A'}</td>
+                        <td>${request.requestedDate ? new Date(request.requestedDate).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <span class="status-badge status-${request.requestStatus ? request.requestStatus.toLowerCase() : 'pending'}">
+                                ${request.requestStatus || 'PENDING'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="action-btn view-btn" data-id="${request.id}">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${request.requestStatus === 'PENDING' ? `
+                                <button class="action-btn approve-btn" data-id="${request.id}">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="action-btn reject-btn" data-id="${request.id}">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+
+            $requestsTableBody.html(rows);
+
+            // Add event listeners
+            $('.view-btn').on('click', function() {
+                const requestId = $(this).data('id');
+                showRequestDetails(requestId, requests);
+            });
+
+            $('.approve-btn').on('click', function() {
+                const requestId = $(this).data('id');
+                approveRequest(requestId);
+            });
+
+            $('.reject-btn').on('click', function() {
+                const requestId = $(this).data('id');
+                rejectRequest(requestId);
+            });
+        }
+
+        // Function to update request statistics
+        function updateRequestStats(requests) {
+            $('#totalRequests').text(requests.length);
+            $('#pendingRequests').text(requests.filter(r => r.requestStatus === 'PENDING').length);
+            $('#approvedRequests').text(requests.filter(r => r.requestStatus === 'APPROVED').length);
+            $('#rejectedRequests').text(requests.filter(r => r.requestStatus === 'REJECTED').length);
+        }
+
+        // Function to show request details
+        function showRequestDetails(requestId, requests) {
+            const request = requests.find(r => r.id === requestId);
+            if (!request) return;
+
+            $('#modalBody').html(`
+                    <div class="detail-row">
+                        <div class="detail-label">Request ID:</div>
+                        <div class="detail-value">${request.id || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Blood Type:</div>
+                        <div class="detail-value">${request.bloodType || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Quantity:</div>
+                        <div class="detail-value">${request.quantity || '0'} units</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Recipient Email:</div>
+                        <div class="detail-value">${request.recipientEmail || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Number:</div>
+                        <div class="detail-value">${request.contactNumber || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Medical Condition:</div>
+                        <div class="detail-value">${request.medicalCondition || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value">
+                            <span class="status-badge status-${request.requestStatus.toLowerCase()}">
+                                ${request.requestStatus}
+                            </span>
+                        </div>
+                    </div>
+                `);
+
+            if (request.requestStatus === 'PENDING') {
+                $('#modalFooter').html(`
+                        <button class="action-btn approve-btn" id="modalApproveBtn">
+                            <i class="fas fa-check"></i> Approve Request
+                        </button>
+                        <button class="action-btn reject-btn" id="modalRejectBtn">
+                            <i class="fas fa-times"></i> Reject Request
+                        </button>
+                    `);
+
+                $('#modalApproveBtn').on('click', function() {
+                    approveRequest(request.id);
+                    $('#requestModal').hide();
+                });
+
+                $('#modalRejectBtn').on('click', function() {
+                    rejectRequest(request.id);
+                    $('#requestModal').hide();
+                });
+            } else {
+                $('#modalFooter').empty();
+            }
+
+            $('#requestModal').show();
+        }
+
+        // Function to approve a request
+        function approveRequest(requestId) {
+            if (!confirm('Are you sure you want to approve this request?')) return;
+
+            $.ajax({
+                url: `${API_BASE_URL}/${requestId}/approve`,
+                type: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                success: function() {
+                    alert('Request approved successfully!');
+                    loadBloodRequests(); // Refresh data
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error approving request:', error);
+                    alert('Error approving request. Please try again.');
+                }
+            });
+        }
+
+        // Function to reject a request
+        function rejectRequest(requestId) {
+            if (!confirm('Are you sure you want to reject this request?')) return;
+
+            $.ajax({
+                url: `${API_BASE_URL}/${requestId}/reject`,
+                type: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                success: function() {
+                    alert('Request rejected successfully!');
+                    loadBloodRequests(); // Refresh data
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error rejecting request:', error);
+                    alert('Error rejecting request. Please try again.');
+                }
+            });
+        }
+
+        function showLoading() {
+            $('.loading').show();
+        }
+
+        function hideLoading() {
+            $('.loading').hide();
+        }
+    });
+</script>
+</body>
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Request Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            &#45;&#45;primary: #e53935;
+            &#45;&#45;primary-dark: #c62828;
+            &#45;&#45;secondary: #f5f5f5;
+            &#45;&#45;text: #333;
+            &#45;&#45;text-light: #666;
+            &#45;&#45;border: #e0e0e0;
+            &#45;&#45;success: #4caf50;
+            &#45;&#45;warning: #ff9800;
+            &#45;&#45;danger: #f44336;
+            &#45;&#45;white: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            color: var(&#45;&#45;text);
+        }
+
+        header {
+            background-color: var(&#45;&#45;primary);
+            color: var(&#45;&#45;white);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(&#45;&#45;white);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background-color: var(&#45;&#45;primary-dark);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(&#45;&#45;primary);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(&#45;&#45;white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.pending {
+            border-top: 4px solid var(&#45;&#45;warning);
+        }
+
+        .stat-card.approved {
+            border-top: 4px solid var(&#45;&#45;success);
+        }
+
+        .stat-card.rejected {
+            border-top: 4px solid var(&#45;&#45;danger);
+        }
+
+        .stat-card.total {
+            border-top: 4px solid var(&#45;&#45;primary);
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(&#45;&#45;text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .requests-container {
+            background-color: var(&#45;&#45;white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(&#45;&#45;border);
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(&#45;&#45;secondary);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            margin-left: 0.5rem;
+            width: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(&#45;&#45;border);
+        }
+
+        th {
+            font-weight: 500;
+            color: var(&#45;&#45;text-light);
+            background-color: var(&#45;&#45;secondary);
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: var(&#45;&#45;warning);
+        }
+
+        .status-approved {
+            background-color: #e8f5e9;
+            color: var(&#45;&#45;success);
+        }
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: var(&#45;&#45;danger);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+        }
+
+        .approve-btn {
+            background-color: var(&#45;&#45;success);
+            color: var(&#45;&#45;white);
+        }
+
+        .approve-btn:hover {
+            background-color: #3d8b40;
+        }
+
+        .reject-btn {
+            background-color: var(&#45;&#45;danger);
+            color: var(&#45;&#45;white);
+        }
+
+        .reject-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .view-btn {
+            background-color: var(&#45;&#45;primary);
+            color: var(&#45;&#45;white);
+        }
+
+        .view-btn:hover {
+            background-color: var(&#45;&#45;primary-dark);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(&#45;&#45;white);
+            border-radius: 8px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(&#45;&#45;border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(&#45;&#45;text-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .detail-label {
+            width: 150px;
+            font-weight: 500;
+            color: var(&#45;&#45;text-light);
+        }
+
+        .detail-value {
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(&#45;&#45;border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(&#45;&#45;primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 992px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <i class="fas fa-tint"></i>
+            <h1>BloodLink</h1>
+        </div>
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="all">All Requests</div>
+            <div class="nav-tab" data-tab="pending">Pending</div>
+            <div class="nav-tab" data-tab="approved">Approved</div>
+            <div class="nav-tab" data-tab="rejected">Rejected</div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Blood Request Dashboard</h2>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search requests...">
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card total">
+            <div class="stat-title">Total Requests</div>
+            <div class="stat-value" id="totalRequests">0</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-title">Pending Requests</div>
+            <div class="stat-value" id="pendingRequests">0</div>
+        </div>
+        <div class="stat-card approved">
+            <div class="stat-title">Approved Requests</div>
+            <div class="stat-value" id="approvedRequests">0</div>
+        </div>
+        <div class="stat-card rejected">
+            <div class="stat-title">Rejected Requests</div>
+            <div class="stat-value" id="rejectedRequests">0</div>
+        </div>
+    </div>
+
+    <div class="requests-container">
+        <div class="table-header">
+            <div class="table-title">Recent Blood Requests</div>
+        </div>
+        <div id="requestsTable">
+            <table>
+                <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Blood Type</th>
+                    <th>Quantity</th>
+                    <th>Recipient</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                &lt;!&ndash; Requests will be loaded here &ndash;&gt;
+                </tbody>
+            </table>
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+&lt;!&ndash; Request Details Modal &ndash;&gt;
+<div class="modal" id="requestModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Request Details</h3>
+            <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            &lt;!&ndash; Details will be loaded here &ndash;&gt;
+        </div>
+        <div class="modal-footer" id="modalFooter">
+            &lt;!&ndash; Action buttons will be loaded here &ndash;&gt;
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const searchInput = document.getElementById('searchInput');
+        const requestsTableBody = document.getElementById('requestsTableBody');
+        const requestModal = document.getElementById('requestModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalBody = document.getElementById('modalBody');
+        const modalFooter = document.getElementById('modalFooter');
+
+        // Stats elements
+        const totalRequestsEl = document.getElementById('totalRequests');
+        const pendingRequestsEl = document.getElementById('pendingRequests');
+        const approvedRequestsEl = document.getElementById('approvedRequests');
+        const rejectedRequestsEl = document.getElementById('rejectedRequests');
+
+        // Current state
+        let currentTab = 'all';
+        let currentSearch = '';
+        let requests = [];
+
+        // Initialize the app
+        fetchAllRequests();
+
+        // Event listeners
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                filterRequests();
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase();
+            filterRequests();
+        });
+
+        closeModal.addEventListener('click', () => {
+            requestModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === requestModal) {
+                requestModal.style.display = 'none';
+            }
+        });
+
+        // Fetch all requests from API
+        function fetchAllRequests() {
+            fetch('http://localhost:8080/api/v1/requests/all')
+                .then(response => response.json())
+                .then(data => {
+                    requests = data;
+                    updateStats();
+                    filterRequests();
+                })
+                .catch(error => {
+                    console.error('Error fetching requests:', error);
+                    requestsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(&#45;&#45;danger);">Error loading requests. Please try again.</td></tr>`;
+                });
+        }
+
+        // Filter requests based on tab and search
+        function filterRequests() {
+            let filteredRequests = [...requests];
+
+            // Filter by tab
+            if (currentTab !== 'all') {
+                filteredRequests = filteredRequests.filter(request =>
+                    request.requestStatus.toLowerCase() === currentTab.toUpperCase()
+                );
+            }
+
+            // Filter by search
+            if (currentSearch) {
+                filteredRequests = filteredRequests.filter(request =>
+                    request.bloodType.toLowerCase().includes(currentSearch) ||
+                    request.recipientEmail.toLowerCase().includes(currentSearch) ||
+                    request.contactNumber.toLowerCase().includes(currentSearch) ||
+                    request.medicalCondition.toLowerCase().includes(currentSearch)
+                );
+            }
+
+            renderRequestsTable(filteredRequests);
+        }
+
+        // Render requests table
+        function renderRequestsTable(requests) {
+            if (requests.length === 0) {
+                requestsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No requests found</td></tr>`;
+                return;
+            }
+
+            requestsTableBody.innerHTML = requests.map(request => `
+                    <tr>
+                        <td>${request.id ? request.id.substring(0, 8) : 'N/A'}</td>
+                        <td>${request.bloodType || 'N/A'}</td>
+                        <td>${request.quantity || '0'} units</td>
+                        <td>${request.recipientEmail || 'N/A'}</td>
+                        <td>${new Date().toLocaleDateString()}</td>
+                        <td>
+                            <span class="status-badge status-${request.requestStatus.toLowerCase()}">
+                                ${request.requestStatus}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="action-btn view-btn" data-id="${request.id}">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${request.requestStatus === 'PENDING' ? `
+                                <button class="action-btn approve-btn" data-id="${request.id}">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="action-btn reject-btn" data-id="${request.id}">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const requestId = e.target.closest('button').dataset.id;
+                    showRequestDetails(requestId);
+                });
+            });
+
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const requestId = e.target.closest('button').dataset.id;
+                    approveRequest(requestId);
+                });
+            });
+
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const requestId = e.target.closest('button').dataset.id;
+                    rejectRequest(requestId);
+                });
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            totalRequestsEl.textContent = requests.length;
+            pendingRequestsEl.textContent = requests.filter(r => r.requestStatus === 'PENDING').length;
+            approvedRequestsEl.textContent = requests.filter(r => r.requestStatus === 'APPROVED').length;
+            rejectedRequestsEl.textContent = requests.filter(r => r.requestStatus === 'REJECTED').length;
+        }
+
+        // Show request details in modal
+        function showRequestDetails(requestId) {
+            const request = requests.find(r => r.id === requestId);
+            if (!request) return;
+
+            modalBody.innerHTML = `
+                    <div class="detail-row">
+                        <div class="detail-label">Request ID:</div>
+                        <div class="detail-value">${request.id || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Blood Type:</div>
+                        <div class="detail-value">${request.bloodType || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Quantity:</div>
+                        <div class="detail-value">${request.quantity || '0'} units</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Recipient Email:</div>
+                        <div class="detail-value">${request.recipientEmail || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Number:</div>
+                        <div class="detail-value">${request.contactNumber || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Medical Condition:</div>
+                        <div class="detail-value">${request.medicalCondition || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value">
+                            <span class="status-badge status-${request.requestStatus.toLowerCase()}">
+                                ${request.requestStatus}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+            if (request.requestStatus === 'PENDING') {
+                modalFooter.innerHTML = `
+                        <button class="action-btn approve-btn" id="modalApproveBtn">
+                            <i class="fas fa-check"></i> Approve Request
+                        </button>
+                        <button class="action-btn reject-btn" id="modalRejectBtn">
+                            <i class="fas fa-times"></i> Reject Request
+                        </button>
+                    `;
+
+                document.getElementById('modalApproveBtn').addEventListener('click', () => {
+                    approveRequest(request.id);
+                    requestModal.style.display = 'none';
+                });
+
+                document.getElementById('modalRejectBtn').addEventListener('click', () => {
+                    rejectRequest(request.id);
+                    requestModal.style.display = 'none';
+                });
+            } else {
+                modalFooter.innerHTML = '';
+            }
+
+            requestModal.style.display = 'flex';
+        }
+
+        // Approve a request
+        function approveRequest(requestId) {
+            if (!confirm('Are you sure you want to approve this request?')) return;
+
+            fetch(`http://localhost:8080/api/v1/requests/${requestId}/approve`, {
+                method: 'PUT'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Request approved successfully!');
+                        fetchAllRequests(); // Refresh data
+                    } else {
+                        throw new Error('Failed to approve request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error approving request:', error);
+                    alert('Error approving request. Please try again.');
+                });
+        }
+
+        // Reject a request
+        function rejectRequest(requestId) {
+            if (!confirm('Are you sure you want to reject this request?')) return;
+
+            fetch(`http://localhost:8080/api/v1/requests/${requestId}/reject`, {
+                method: 'PUT'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Request rejected successfully!');
+                        fetchAllRequests(); // Refresh data
+                    } else {
+                        throw new Error('Failed to reject request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error rejecting request:', error);
+                    alert('Error rejecting request. Please try again.');
+                });
+        }
+    });
+</script>
+</body>
+</html>-->

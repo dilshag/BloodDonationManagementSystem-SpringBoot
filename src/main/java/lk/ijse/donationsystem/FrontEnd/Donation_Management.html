@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #f5f5f5;
+            --accent-color: #ffcdd2;
+            --text-color: #333;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --green-accent: #4caf50;
+            --green-light: #e8f5e9;
+            --yellow-accent: #ffeb3b;
+            --yellow-dark: #fbc02d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Filter Section Styles */
+        .blood-filter-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .blood-filter-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ffebee;
+        }
+
+        .blood-filter-icon {
+            color: var(--primary-color);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .blood-filter-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .blood-filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .blood-filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blood-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .blood-input-icon {
+            position: absolute;
+            left: 10px;
+            color: var(--primary-color);
+            font-size: 13px;
+        }
+
+        .blood-filter-input,
+        .blood-filter-select {
+            padding: 8px 12px 8px 32px;
+            border: 1px solid #a5d6a7;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 100%;
+            background-color: var(--green-light);
+            color: var(--text-color);
+        }
+
+        .blood-filter-select {
+            padding-left: 12px;
+        }
+
+        .blood-filter-input:focus,
+        .blood-filter-select:focus {
+            outline: none;
+            border-color: var(--green-accent);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .blood-filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .blood-reset-btn {
+            background-color: var(--yellow-accent);
+            border: 1px solid var(--yellow-accent);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .blood-reset-btn:hover {
+            background-color: var(--yellow-dark);
+            border-color: var(--yellow-dark);
+        }
+
+        .blood-apply-btn {
+            background:  #2e7d32;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .blood-apply-btn:hover {
+            background: #065f46;
+        }
+
+        /* Table Styles */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        #donationsTable th,
+        #donationsTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .blood-badge {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .blood-filter-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .blood-filter-actions {
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .blood-filter-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-heartbeat me-2"></i> LifeSaver
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-tint me-2"></i>Blood Donation Management</h2>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="blood-filter-container">
+        <div class="blood-filter-header">
+            <i class="fas fa-filter blood-filter-icon"></i>
+            <span class="blood-filter-title">Filter Options</span>
+        </div>
+
+        <form id="filterForm" class="blood-filter-form">
+            <div class="blood-filter-row">
+                <div class="blood-filter-group">
+                    <div class="blood-input-group">
+                        <span class="blood-input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" id="donorIdFilter" placeholder="Donor ID" class="blood-filter-input">
+                    </div>
+                </div>
+
+                <div class="blood-filter-group">
+                    <div class="blood-input-group">
+                        <span class="blood-input-icon"><i class="fas fa-hospital"></i></span>
+                        <input type="text" id="bloodBankIdFilter" placeholder="Bank ID" class="blood-filter-input">
+                    </div>
+                </div>
+
+                <div class="blood-filter-group">
+                    <select class="blood-filter-select" id="bloodTypeFilter">
+                        <option value="">All Blood Types</option>
+                        <option value="A_POSITIVE">A+</option>
+                        <option value="A_NEGATIVE">A-</option>
+                        <option value="B_POSITIVE">B+</option>
+                        <option value="B_NEGATIVE">B-</option>
+                        <option value="AB_POSITIVE">AB+</option>
+                        <option value="AB_NEGATIVE">AB-</option>
+                        <option value="O_POSITIVE">O+</option>
+                        <option value="O_NEGATIVE">O-</option>
+                    </select>
+                </div>
+
+                <div class="blood-filter-group">
+                    <select class="blood-filter-select" id="sortFilter">
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="blood-filter-actions">
+                <button type="button" id="resetFilters" class="blood-reset-btn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button type="submit" class="blood-apply-btn">
+                    <i class="fas fa-check"></i> Apply
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Donations Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Donations List</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="donationsTable">
+                    <thead>
+                    <tr>
+                        <th>Donation ID</th>
+                        <th>Donor ID</th>
+                        <th>Blood Bank ID</th>
+                        <th>Blood Type</th>
+                        <th>Quantity (ml)</th>
+                        <th>Donation Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="donationsTableBody">
+                    <!-- Donations will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const authToken = localStorage.getItem('authToken');
+
+        if (!authToken) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Load initial donations
+        loadDonations();
+
+        // Filter form submission
+        $('#filterForm').submit(function(e) {
+            e.preventDefault();
+            loadDonations();
+        });
+
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('#filterForm')[0].reset();
+            loadDonations();
+        });
+
+        // Logout
+        $('#logoutBtn').click(function() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    });
+
+    function loadDonations() {
+        const authToken = localStorage.getItem('authToken');
+
+        // Get filter values
+        const donorId = $('#donorIdFilter').val();
+        const bloodBankId = $('#bloodBankIdFilter').val();
+        const bloodType = $('#bloodTypeFilter').val();
+        const sort = $('#sortFilter').val();
+
+        // Build query string
+        let queryString = '';
+        if (donorId) queryString += `donorId=${donorId}&`;
+        if (bloodBankId) queryString += `bloodBankId=${bloodBankId}&`;
+        if (bloodType) queryString += `bloodType=${bloodType}&`;
+        queryString += `sort=${sort}`;
+
+        // Show loading state
+        $('#donationsTableBody').html('<tr><td colspan="7" class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading donations...</td></tr>');
+
+        $.ajax({
+            url: `http://localhost:8081/api/v1/donations/filter?${queryString}`,
+            type: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            success: function(response) {
+                renderDonations(response);
+            },
+            error: function(xhr) {
+                $('#donationsTableBody').html('<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load donations</td></tr>');
+                console.error('Error loading donations:', xhr.responseText);
+            }
+        });
+    }
+
+    function renderDonations(donations) {
+        const tableBody = $('#donationsTableBody');
+        tableBody.empty();
+
+        if (donations.length === 0) {
+            tableBody.append('<tr><td colspan="7" class="text-center py-4">No donations found matching your criteria</td></tr>');
+            return;
+        }
+
+        donations.forEach(donation => {
+            const donationDate = new Date(donation.donationDate).toLocaleDateString();
+            const bloodTypeBadge = getBloodTypeBadge(donation.bloodType);
+
+            tableBody.append(`
+                <tr>
+                    <td>${donation.id.substring(0, 8)}...</td>
+                    <td>${donation.donorId}</td>
+                    <td>${donation.bloodBankId}</td>
+                    <td>${bloodTypeBadge}</td>
+                    <td>${donation.quantity} ml</td>
+                    <td>${donationDate}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary action-btn">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function getBloodTypeBadge(bloodType) {
+        const typeMap = {
+            'A_POSITIVE': { class: 'bg-danger', text: 'A+' },
+            'A_NEGATIVE': { class: 'bg-danger bg-opacity-75', text: 'A-' },
+            'B_POSITIVE': { class: 'bg-primary', text: 'B+' },
+            'B_NEGATIVE': { class: 'bg-primary bg-opacity-75', text: 'B-' },
+            'AB_POSITIVE': { class: 'bg-success', text: 'AB+' },
+            'AB_NEGATIVE': { class: 'bg-success bg-opacity-75', text: 'AB-' },
+            'O_POSITIVE': { class: 'bg-warning text-dark', text: 'O+' },
+            'O_NEGATIVE': { class: 'bg-warning bg-opacity-75 text-dark', text: 'O-' }
+        };
+
+        const typeInfo = typeMap[bloodType] || { class: 'bg-secondary', text: bloodType };
+        return `<span class="badge ${typeInfo.class} blood-badge">${typeInfo.text}</span>`;
+    }
+</script>
+</body>
+</html>

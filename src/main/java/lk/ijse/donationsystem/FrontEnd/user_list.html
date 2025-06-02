@@ -276,7 +276,7 @@
         let tableBody = $('#userTableBody');
 
         $.ajax({
-            url: "http://localhost:8080/api/v1/user/getAll",
+            url: "http://localhost:8081/api/v1/user/getAll",
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${authToken}`,
@@ -346,7 +346,7 @@
                 const authToken = localStorage.getItem('authToken');
 
                 $.ajax({
-                    url: `http://localhost:8080/api/v1/user/delete/${email}`,
+                    url: `http://localhost:8081/api/v1/user/delete/${email}`,
                     method: "DELETE",
                     headers: {
                         "Authorization": `Bearer ${authToken}`,
@@ -399,7 +399,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `http://localhost:8080/api/v1/user/status?email=${email}&status=${status}`,
+                    url: `http://localhost:8081/api/v1/user/status?email=${email}&status=${status}`,
                     method: "PUT",
                     headers: {
                         "Authorization": `Bearer ${authToken}`,

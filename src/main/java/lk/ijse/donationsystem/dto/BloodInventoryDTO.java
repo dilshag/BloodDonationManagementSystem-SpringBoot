@@ -18,18 +18,3 @@ public class BloodInventoryDTO {
     private UUID bloodBankId; // Blood Bank ID
     private List<BloodStockDTO> bloodStockList;
 }
-
-/*
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class BloodInventoryDTO {
-    private UUID id;
-    private BloodType bloodType;
-    private String quantity;
-    private LocalDate expiryDate;
-    private UUID bloodBankId; // Blood Bank ID
-
-}
-*/

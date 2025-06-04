@@ -15,7 +15,31 @@ public class BloodStockDTO {
     private UUID id;
     private BloodType bloodType;
     private int quantity;
+    private LocalDate donatedDate;
+    private LocalDate expiryDate;
+
+    private UUID inventoryId;
+    private UUID donorId;
+    private String donorName;
+}
+
+
+
+
+
+
+
+/*
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BloodStockDTO {
+    private UUID id;
+    private BloodType bloodType;
+    private int quantity;
     private LocalDate expiryDate;
     private UUID inventoryId;  // Add this field
 
 }
+*/

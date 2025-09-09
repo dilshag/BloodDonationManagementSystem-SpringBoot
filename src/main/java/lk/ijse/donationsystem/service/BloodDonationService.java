@@ -3,6 +3,7 @@ package lk.ijse.donationsystem.service;
 
 import lk.ijse.donationsystem.BloodType;
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
+import lk.ijse.donationsystem.dto.BloodStockDTO;
 import lk.ijse.donationsystem.dto.DonationRequestDTO;
 
 import java.util.List;
@@ -13,6 +14,10 @@ public interface BloodDonationService {
     List<BloodDonationDTO> getAllDonations();
     List<BloodDonationDTO> filterDonations(UUID donorId, UUID bloodBankId, BloodType bloodType, String sort);
     void createDonation(DonationRequestDTO dto);
+
+List<BloodStockDTO> getAllStockWithDonorInfo();
+
+    List<BloodStockDTO> getExpiredStock();
 }
 
 

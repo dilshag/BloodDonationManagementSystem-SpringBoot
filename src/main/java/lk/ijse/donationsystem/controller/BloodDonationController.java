@@ -2,6 +2,7 @@ package lk.ijse.donationsystem.controller;
 
 import lk.ijse.donationsystem.BloodType;
 import lk.ijse.donationsystem.dto.BloodDonationDTO;
+import lk.ijse.donationsystem.dto.BloodStockDTO;
 import lk.ijse.donationsystem.dto.DonationRequestDTO;
 import lk.ijse.donationsystem.service.BloodDonationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,22 @@ public class BloodDonationController {
     }
 
 
+    // ✅ New endpoint to get all stocks with donor info
+    @GetMapping("/stocks")
+    public ResponseEntity<List<BloodStockDTO>> getAllStocksWithDonorInfo() {
+        List<BloodStockDTO> stocks = donationService.getAllStockWithDonorInfo();
+        return ResponseEntity.ok(stocks);
+    }
+
+    // ✅ New endpoint to get expired stocks only
+    @GetMapping("/stocks/expired")
+    public ResponseEntity<List<BloodStockDTO>> getExpiredStocks() {
+        List<BloodStockDTO> expiredStocks = donationService.getExpiredStock();
+        return ResponseEntity.ok(expiredStocks);
+    }
 }
+
+/*/api/v1/donations/stocks → Returns all blood stock records with donor info.
+
+/api/v1/donations/stocks/expired → Returns only expired blood stock.*/
 
